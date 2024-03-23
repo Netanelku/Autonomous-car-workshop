@@ -8,8 +8,8 @@
 #include "soc/rtc_cntl_reg.h"  //disable brownout problems
 #include "esp_http_server.h"
 //Replace with your network credentials
-const char* ssid = "Harpaz";
-const char* password = "055950174";
+const char* ssid = "%%%%%";
+const char* password = "%%%%%";
 #define PART_BOUNDARY "123456789000000000000987654321"
 // This project was tested with the AI Thinker Model, M5STACK PSRAM Model and M5STACK WITHOUT PSRAM
 #define CAMERA_MODEL_AI_THINKER
@@ -185,9 +185,6 @@ void turnRight();
 void stopMotors();
 bool checkObstacle();
 void avoidObstacle();
-
-
-void startCameraServer();
 
 void setup()
 {
