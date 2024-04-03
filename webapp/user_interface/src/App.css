@@ -3,81 +3,18 @@
   height: 100vh;
   text-align: center;
   display: flex;
-  background: linear-gradient(#0c1b27, #aaafb8);
-  flex-direction: column;
+  background: linear-gradient( #132839,#4a7abd);
+  flex-direction: row;
   font-size: large;
 }
-.menu
-{
-  position: absolute; /* or "fixed" depending on your requirements */
-  top: 3vh; /* adjust as needed */
-  width: 100vw;
-  height: 6vh;
+.column1{
+  width: 5vw;
+  height: 100vh;
+}
+.column2{
+  width: 95vw;
+  height: 100vh;
   display: flex;
-  justify-content: space-around;
-  flex-direction: row;
-  background-color: rgb(150, 0, 0); 
+  flex-direction: column;
 }
-.menu1
-{
-  width: 10%;
-  height: 100%;
-  background-color: rgb(224, 224, 224); 
-}
-.FirstRow
-{
-  height: 20vh;
-  width: 100vw;
-  /* background-color: rgb(54, 100, 185); */
-  flex:1;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-.SecondRow
-{
-  height: 20vh;
-  width: 100vw;
-  /* background-color: rgb(98, 161, 202); */
-  flex:9
-}
-.ThirdRow
-{
-  height: 20vh;
-  width: 100vw;
-  /* background-color: rgb(52, 19, 202); */
-  flex:3;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-}
-.rectangle
-{
-  height: 60%;
-  width: 20%;
-  display: flex;
 
-  flex-direction: row; 
-  /* flex-direction: column; */
-  background: linear-gradient(#5a5f66, #132839);
-  border-radius: 30px;
-  justify-content: center; /* Horizontally center the content */
-  align-items: center; 
-}
-.rec1
-{
-  flex:4;
-  /* background-color: rgb(64, 30, 214); */
-  width: 100%;
-  height: 100%;
-/* Vertically center the content */
-
-}
-.rec2
-{
- /* background-color: rgb(85, 207, 91); */
- flex:8;
-  width: 100%;
-  height: 100%;
-}

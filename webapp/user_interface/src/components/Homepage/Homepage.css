@@ -1,0 +1,66 @@
+    .mainWindow{
+        display: flex;
+        flex-direction: column;
+        height: 100%
+    }
+  .FirstRow
+  {
+    
+    /* background-color: rgb(54, 100, 185); */
+    flex:10;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .SecondRow
+  {
+    flex:9;
+    /* background-color: rgb(21, 206, 21); */
+    
+  }
+  .ThirdRow
+  {
+    flex:3;
+
+    /* background-color: rgb(52, 19, 202); */
+    /* background-color: rgb(206, 21, 30); */
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+  }
+  .rectangle
+  {
+    height: 60%;
+    width: 20%;
+    display: flex;
+    margin-left: 80px;
+    margin-right: 200px;
+    flex-direction: row; 
+    /* flex-direction: column; */
+    background: linear-gradient(#0b121b, #20405a);
+    border-radius: 30px;
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; 
+    color: #ffffff;
+  }
+  .rec1
+  {
+    flex:4;
+    /* background-color: rgb(64, 30, 214); */
+    /* width: 100%;
+    height: 100%; */
+  /* Vertically center the content */
+  
+  }
+  .rec2
+  {
+   /* background-color: rgb(85, 207, 91); */
+   flex:8;
+    /* width: 100%;
+    height: 100%; */
+  }
+  .logo
+  {
+    height: 7vh;
+  }
