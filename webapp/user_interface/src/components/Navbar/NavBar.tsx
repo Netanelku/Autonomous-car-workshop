@@ -28,6 +28,9 @@ const NavBar: React.FC = () => {
           <li className="nav-item mx-5">
             <Link to="/contact" className="nav-link">Contact</Link>
           </li>
+          <li className="nav-item mx-5">
+            <Link to="/Test" className="nav-link">Endpoints</Link>
+          </li>
         </ul>
      
       </div>

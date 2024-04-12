@@ -3,9 +3,16 @@
   height: 100vh;
   text-align: center;
   display: flex;
-  background: linear-gradient( #132839,#4a7abd);
+  background: linear-gradient(170deg, rgba(49, 57, 73, 0.8) 20%, rgba(49, 57, 73, 0.5) 20%, rgba(49, 57, 73, 0.5) 35%, rgba(41, 48, 61, 0.6) 35%, rgba(41, 48, 61, 0.8) 45%, rgba(31, 36, 46, 0.5) 45%, rgba(31, 36, 46, 0.8) 75%, rgba(49, 57, 73, 0.5) 75%), linear-gradient(45deg, rgba(20, 24, 31, 0.8) 0%, rgba(41, 48, 61, 0.8) 50%, rgba(82, 95, 122, 0.8) 50%, rgba(133, 146, 173, 0.8) 100%) #313949;
+  /* background: linear-gradient( #132839,#4a7abd); */
   flex-direction: row;
   font-size: large;
+  background-image: url('./images/aab.jpg');
+  /* Optionally, you can specify other background properties */
+  background-size: cover; /* or contain, or specific dimensions */
+  background-repeat: no-repeat; /* or repeat-x, repeat-y, repeat */
+  /* You can also set background position if needed */
+  background-position: center center; /* or any other position */
 }
 .column1{
   width: 5vw;
@@ -18,3 +25,7 @@
   flex-direction: column;
 }
 
+
+.background-image {
+  
+}

@@ -2,7 +2,8 @@ import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NavBar from './components/Navbar/NavBar';
- import Home from './components/Homepage/Homepage';
+import Home from './components/Homepage/Homepage';
+import Test from './components/Endpoints/test';
 // import About from './About';
 // import Services from './Services';
 // import Contact from './Contact';
@@ -19,6 +20,7 @@ const App: React.FC = ()=> {
           {/* <Route path="/about" component={About} />
           <Route path="/services" component={Services} />
           <Route path="/contact" component={Contact} /> */}
+          <Route path="/Test" element={<Test/>} />
           </Routes>
 
     </Router>
