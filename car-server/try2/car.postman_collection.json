@@ -1,0 +1,227 @@
+{
+	"info": {
+		"_postman_id": "022de255-b346-4f42-9597-97994a1da2dc",
+		"name": "car",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26797327"
+	},
+	"item": [
+		{
+			"name": "right",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=right&delay=550",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "right"
+						},
+						{
+							"key": "delay",
+							"value": "550"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forward",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=forward&delay=500",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "forward"
+						},
+						{
+							"key": "delay",
+							"value": "500"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forward Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=forward&delay=500",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "forward"
+						},
+						{
+							"key": "delay",
+							"value": "500"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "left",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=left&delay=550",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "left"
+						},
+						{
+							"key": "delay",
+							"value": "550"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Predefined_Road",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=left&delay=550",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "left"
+						},
+						{
+							"key": "delay",
+							"value": "550"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forward Copy 3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=forward&delay=500",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "forward"
+						},
+						{
+							"key": "delay",
+							"value": "500"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "forward Copy 2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.43.240/go?dir=forward&delay=500",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"43",
+						"240"
+					],
+					"path": [
+						"go"
+					],
+					"query": [
+						{
+							"key": "dir",
+							"value": "forward"
+						},
+						{
+							"key": "delay",
+							"value": "500"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

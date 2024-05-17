@@ -38,7 +38,7 @@ def car_motion_stop():
 def detect_object():
     return find_and_localize_object(cv2.imread('query.jpeg',0))
 
-@app.route('/camera/detection_car', methods=['GET'])
+@app.route('/camera/detection_car', methods=['POST'])
 def detect1_object():
     if 'image' not in request.files:
         return "No image provided", 400
