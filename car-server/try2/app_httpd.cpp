@@ -4,16 +4,11 @@
  * @FilePath:
  */
 #include "esp_http_server.h"
-#include "esp_http_client.h"
-
 #include "esp_timer.h"
 #include "esp_camera.h"
 #include "img_converters.h"
 #include "camera_index.h"
 #include "Arduino.h"
-#include <map>
-#include <vector>
-#include <utility> // for std::pair
 
 extern int gpLb;
 extern int gpLf;
@@ -22,17 +17,7 @@ extern int gpRf;
 extern int gpLed;
 extern String WiFiAddr;
 
-void WheelAct(int nLf, int nLb, int nRf, int nRb)
-{
-    digitalWrite(gpLf, nLf);
-    digitalWrite(gpLb, nLb);
-    digitalWrite(gpRf, nRf);
-    digitalWrite(gpRb, nRb);
-}
-
-const int cycle = 10; // PWM cycle time in milliseconds
-const float dc = 50;  // PWM duty cycle in percentage (initially set to 50%)
-const int parton = cycle * dc / 100; // Calculate the ON time based on duty cycle
+void WheelAct(int nLf, int nLb, int nRf, int nRb);
 
 void stopCar() {
     WheelAct(LOW, LOW, LOW, LOW); // Stop the car
@@ -54,7 +39,10 @@ typedef struct
     size_t len;
 } jpg_chunking_t;
 
-
+#define PART_BOUNDARY "123456789000000000000987654321"
+static const char *_STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
+static const char *_STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
+static const char *_STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
 static ra_filter_t ra_filter;
 httpd_handle_t stream_httpd = NULL;
@@ -388,194 +376,33 @@ static esp_err_t status_handler(httpd_req_t *req)
     return httpd_resp_send(req, json_response, strlen(json_response));
 }
 
-#include "esp_http_client.h"
-
-// Define a structure to hold the response data
-typedef struct {
-    char *response_buffer;
-    size_t buffer_size;
-} HttpResponseData;
-
-// Callback function to handle HTTP events, including receiving response data
-static esp_err_t http_event_handler(esp_http_client_event_t *evt)
+static esp_err_t index_handler(httpd_req_t *req)
 {
-    HttpResponseData *response_data = (HttpResponseData *)evt->user_data;
-
-    switch(evt->event_id) {
-        case HTTP_EVENT_ON_DATA:
-            // Check if the buffer has enough space to store the incoming data
-            if ((response_data->buffer_size - strlen(response_data->response_buffer)) >= evt->data_len) {
-                // Append received data to the response buffer
-                strncat(response_data->response_buffer, (char *)evt->data, evt->data_len);
-            } else {
-                // If buffer is full, return error
-                return ESP_ERR_NO_MEM;
-            }
-            break;
-        default:
-            break;
-    }
-    return ESP_OK;
-}
-
-// Modified correction handler function to handle response
-static esp_err_t correction_handler(httpd_req_t *req)
-{
-    // Capture an image
-    camera_fb_t *fb = esp_camera_fb_get();
-    if (!fb)
-    {
-        Serial.println("Failed to capture image");
-        httpd_resp_send_500(req);
-        return ESP_FAIL;
-    }
-
-    // Prepare HTTP POST request to send the image
-    esp_http_client_config_t config = {
-        .url = "http://127.0.0.1:8080/camera/detection_car",
-        .method = HTTP_METHOD_POST,
-        .event_handler = http_event_handler,
-        .user_data = (void *)response_data // Pass the response data structure
-        .post_buf = fb->buf,
-        .post_len = fb->len
-    };
-
-    // Initialize response data structure
-    HttpResponseData response_data = {
-        .response_buffer = malloc(1024), // Allocate memory for response buffer
-        .buffer_size = 1024
-    };
-    if (response_data.response_buffer == NULL) {
-        esp_camera_fb_return(fb);
-        httpd_resp_send_500(req);
-        return ESP_ERR_NO_MEM;
-    }
-
-    // Send HTTP POST request
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
-    esp_http_client_cleanup(client);
-
-    // Release the frame buffer
-    esp_camera_fb_return(fb);
-
-    if (err != ESP_OK)
-    {
-        Serial.println("Failed to send image to detection endpoint");
-        httpd_resp_send_500(req);
-        free(response_data.response_buffer); // Free response buffer memory
-        return err;
-    }
-
-    // Respond with the received response data
-    httpd_resp_send(req, response_data.response_buffer, strlen(response_data.response_buffer));
-
-    // Free response buffer memory
-    free(response_data.response_buffer);
-
-    return ESP_OK;
-}
-
-
-
-
-// Define the sequence of movements for the predefined road
-enum RoadDirection {
-    FORWARD,
-    LEFT,
-    RIGHT,
-    BACKWARD,
-    STOP
-};
-
-// // Define the predefined road as a map of direction-delay pairs
-struct RoadDirectionDelay {
-    RoadDirection direction; // Assuming this is an enum or some integer representing direction
-    int delay;
-};
-
-//TODO: add localization between before and after each turn
-static esp_err_t road_handler(httpd_req_t *req)
-{
-    // Iterate over the predefined road map
-    RoadDirectionDelay predefinedRoad[] = {
-        {RIGHT, 550},    // Example: Move forward with a delay of 450 milliseconds
-        {FORWARD, 1000}, // Example: Turn left with a delay of 1000 milliseconds
-        {LEFT, 550},      // Example: Turn left with a delay of 450 milliseconds
-        {FORWARD, 2000}, // Example: Turn left with a delay of 1000 milliseconds
-        {LEFT, 550},      // Example: Turn left with a delay of 450 milliseconds
-        {FORWARD, 2000}, // Example: Turn left with a delay of 1000 milliseconds
-        {LEFT, 550},
-        {FORWARD, 2000},      // Example: Turn left with a delay of 450 milliseconds
-        {LEFT, 550},    // Example: Move forward with a delay of 450 milliseconds
-        {FORWARD, 1000},
-        {RIGHT, 550} // Example: Turn left with a delay of 1000 milliseconds
-        // Add more directions with their corresponding delay lengths as needed
-   };
-    for (const auto& road : predefinedRoad) {
-
-        // Get the direction and delay length from the current map entry
-        RoadDirection direction = road.direction;
-        int delayLength = road.delay;
-
-        // Perform the corresponding action based on the direction
-        switch (direction) {
-            case FORWARD:
-                WheelAct(HIGH, LOW, HIGH, LOW); // Move forward
-                break;
-            case LEFT:
-                WheelAct(HIGH, LOW, LOW, HIGH); // Turn left
-                break;
-            case RIGHT:
-                WheelAct(LOW, HIGH, HIGH, LOW); // Turn right
-                break;
-            case BACKWARD:
-                WheelAct(LOW, HIGH, LOW, HIGH); // Move backward
-                break;
-            case STOP:
-                stopCar(); // Stop the car
-                break;
-        }
-
-        // Set a delay to allow the car to complete the movement
-        delay(delayLength);
-    }
-
-    // After executing the predefined road sequence, stop the car
-    stopCar(); // Stop the car
-    delay(1000); // Wait for a moment
     httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, "The car has arrived", 2);
+    String page = "";
+    page += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0\">\n";
+    page += "<script>var xhttp = new XMLHttpRequest();</script>";
+    page += "<script>function getsend(arg) { xhttp.open('GET', arg +'?' + new Date().getTime(), true); xhttp.send() } </script>";
+    // page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:280px;'></p><br/><br/>";
+    page += "<p align=center><IMG SRC='http://" + WiFiAddr + ":81/stream' style='width:300px; transform:rotate(90deg);'></p><br/><br/>";
+
+    page += "<p align=center> <button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('go') onmouseup=getsend('stop') ontouchstart=getsend('go') ontouchend=getsend('stop') ><b>Forward</b></button> </p>";
+    page += "<p align=center>";
+    page += "<button style=background-color:lightgrey;width:90px;height:80px; onmousedown=getsend('left') onmouseup=getsend('stop') ontouchstart=getsend('left') ontouchend=getsend('stop')><b>Left</b></button>&nbsp;";
+    page += "<button style=background-color:indianred;width:90px;height:80px onmousedown=getsend('stop') onmouseup=getsend('stop')><b>Stop</b></button>&nbsp;";
+    page += "<button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('right') onmouseup=getsend('stop') ontouchstart=getsend('right') ontouchend=getsend('stop')><b>Right</b></button>";
+    page += "</p>";
+
+    page += "<p align=center><button style=background-color:lightgrey;width:90px;height:80px onmousedown=getsend('back') onmouseup=getsend('stop') ontouchstart=getsend('back') ontouchend=getsend('stop') ><b>Backward</b></button></p>";
+
+    page += "<p align=center>";
+    page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledon')><b>Light ON</b></button>";
+    page += "<button style=background-color:yellow;width:140px;height:40px onmousedown=getsend('ledoff')><b>Light OFF</b></button>";
+    page += "</p>";
+
+    return httpd_resp_send(req, &page[0], strlen(&page[0]));
 }
 
-
-
-
-static esp_err_t stop_handler(httpd_req_t *req)
-{
-    WheelAct(LOW, LOW, LOW, LOW);
-    Serial.println("Stop");
-    httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, "OK", 2);
-}
-static esp_err_t ledon_handler(httpd_req_t *req)
-{
-    digitalWrite(gpLed, HIGH);
-    Serial.println("LED ON");
-    httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, "OK", 2);
-}
-static esp_err_t ledoff_handler(httpd_req_t *req)
-{
-    digitalWrite(gpLed, LOW);
-    Serial.println("LED OFF");
-    httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, "OK", 2);
-}
-
-
-
-//!!! useful endpoint for measuring delay directions
 static esp_err_t go_handler(httpd_req_t *req)
 {
     char direction[10] = {0}; // Buffer to store direction value
@@ -644,50 +471,132 @@ static esp_err_t go_handler(httpd_req_t *req)
     return ESP_FAIL;
 }
 
-//TODO: need to get checked --Netanel
-static esp_err_t health_handler(httpd_req_t *req)
+static esp_err_t back_handler(httpd_req_t *req)
 {
-    static const char *RESPONSE_BODY = "The car server is operational";
-    Serial.println("Go");
+    WheelAct(LOW, HIGH, LOW, HIGH);
+    Serial.println("Back");
     httpd_resp_set_type(req, "text/html");
-    return httpd_resp_send(req, RESPONSE_BODY, strlen(RESPONSE_BODY)+1);
+    return httpd_resp_send(req, "OK", 2);
+}
+
+static esp_err_t left_handler(httpd_req_t *req)
+{
+   camera_fb_t *fb = NULL;
+    esp_err_t res = ESP_OK;
+    int64_t fr_start = esp_timer_get_time();
+
+    fb = esp_camera_fb_get();
+    if (!fb)
+    {
+        Serial.printf("Camera capture failed");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+    httpd_resp_set_type(req, "image/jpeg");
+    httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.jpg");
+
+    size_t fb_len = 0;
+    if (fb->format == PIXFORMAT_JPEG)
+    {
+        fb_len = fb->len;
+        res = httpd_resp_send(req, (const char *)fb->buf, fb->len);
+    }
+    else
+    {
+        jpg_chunking_t jchunk = {req, 0};
+        res = frame2jpg_cb(fb, 80, jpg_encode_stream, &jchunk) ? ESP_OK : ESP_FAIL;
+        httpd_resp_send_chunk(req, NULL, 0);
+        fb_len = jchunk.len;
+    }
+    esp_camera_fb_return(fb);
+    int64_t fr_end = esp_timer_get_time();
+    Serial.printf("JPG: %uB %ums", (uint32_t)(fb_len), (uint32_t)((fr_end - fr_start) / 1000));
+    return res;
+}
+static esp_err_t right_handler(httpd_req_t *req)
+{
+    WheelAct(LOW, HIGH, HIGH, LOW);
+    Serial.println("Right");
+    httpd_resp_set_type(req, "text/html");
+    return httpd_resp_send(req, "OK", 2);
+}
+
+static esp_err_t stop_handler(httpd_req_t *req)
+{
+    WheelAct(LOW, LOW, LOW, LOW);
+    Serial.println("Stop");
+    httpd_resp_set_type(req, "text/html");
+    return httpd_resp_send(req, "OK", 2);
+}
+
+static esp_err_t ledon_handler(httpd_req_t *req)
+{
+    digitalWrite(gpLed, HIGH);
+    Serial.println("LED ON");
+    httpd_resp_set_type(req, "text/html");
+    return httpd_resp_send(req, "OK", 2);
+}
+static esp_err_t ledoff_handler(httpd_req_t *req)
+{
+    digitalWrite(gpLed, LOW);
+    Serial.println("LED OFF");
+    httpd_resp_set_type(req, "text/html");
+    return httpd_resp_send(req, "OK", 2);
 }
 
 void startCameraServer()
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
-    //this handler function allows the car's movement to be controlled via HTTP requests with parameters specifying the direction and delay. 
-    //It stops the car before executing any new command and provides error messages for invalid or missing parameters.
     httpd_uri_t go_uri = {
         .uri = "/go",
         .method = HTTP_GET,
         .handler = go_handler,
         .user_ctx = NULL};
 
-    //stops the car
+    httpd_uri_t back_uri = {
+        .uri = "/back",
+        .method = HTTP_GET,
+        .handler = back_handler,
+        .user_ctx = NULL};
+
     httpd_uri_t stop_uri = {
         .uri = "/stop",
         .method = HTTP_GET,
         .handler = stop_handler,
         .user_ctx = NULL};
 
-    //turns the light on
+    httpd_uri_t left_uri = {
+        .uri = "/left",
+        .method = HTTP_GET,
+        .handler = left_handler,
+        .user_ctx = NULL};
+
+    httpd_uri_t right_uri = {
+        .uri = "/right",
+        .method = HTTP_GET,
+        .handler = right_handler,
+        .user_ctx = NULL};
+
     httpd_uri_t ledon_uri = {
         .uri = "/ledon",
         .method = HTTP_GET,
         .handler = ledon_handler,
         .user_ctx = NULL};
 
-    //turn the light off
     httpd_uri_t ledoff_uri = {
         .uri = "/ledoff",
         .method = HTTP_GET,
         .handler = ledoff_handler,
         .user_ctx = NULL};
 
-    //****************************************************
-    //might be useful later - setting parameters
+    httpd_uri_t index_uri = {
+        .uri = "/",
+        .method = HTTP_GET,
+        .handler = index_handler,
+        .user_ctx = NULL};
+
     httpd_uri_t status_uri = {
         .uri = "/status",
         .method = HTTP_GET,
@@ -699,49 +608,18 @@ void startCameraServer()
         .method = HTTP_GET,
         .handler = cmd_handler,
         .user_ctx = NULL};
-    //****************************************************
 
-    //useful endpoint to check if the server is operational
-    httpd_uri_t health_uri = {
-        .uri = "/health",
-        .method = HTTP_GET,
-        .handler = health_handler,
-        .user_ctx = NULL};
-
-    //this function reads a predefined road map, executes a sequence of actions (moving forward, turning left/right, stopping, etc.) 
-    //based on the map, and sends an HTTP response indicating that the car has arrived at its destination
-    httpd_uri_t road_uri = {
-        .uri = "/road",
-        .method = HTTP_GET,
-        .handler = road_handler,
-        .user_ctx = NULL};
-
-    //This function essentially captures a frame from the camera, 
-    //converts it to JPEG format if necessary, and sends it as an HTTP response. It provides necessary headers and handles error conditions appropriately.
     httpd_uri_t capture_uri = {
         .uri = "/capture",
         .method = HTTP_GET,
         .handler = capture_handler,
         .user_ctx = NULL};
 
-    // this function continuously captures frames from a camera, converts them to JPEG format if necessary, 
-    //and streams them over HTTP in chunks until an error occurs or the function is terminated externally.
     httpd_uri_t stream_uri = {
         .uri = "/stream",
         .method = HTTP_GET,
         .handler = stream_handler,
         .user_ctx = NULL};
-
-    httpd_uri_t correction_uri = {
-        .uri = "/correction",
-        .method = HTTP_GET,
-        .handler = correction_handler,
-        .user_ctx = NULL};
-
-
-
-
-
 
     ra_filter_init(&ra_filter, 20);
     Serial.printf("Starting web server on port: '%d'", config.server_port);
@@ -749,12 +627,13 @@ void startCameraServer()
     {
         httpd_register_uri_handler(camera_httpd, &index_uri);
         httpd_register_uri_handler(camera_httpd, &go_uri);
-        httpd_register_uri_handler(camera_httpd, &road_uri);
+        httpd_register_uri_handler(camera_httpd, &back_uri);
         httpd_register_uri_handler(camera_httpd, &stop_uri);
+        httpd_register_uri_handler(camera_httpd, &left_uri);
+        httpd_register_uri_handler(camera_httpd, &right_uri);
         httpd_register_uri_handler(camera_httpd, &ledon_uri);
         httpd_register_uri_handler(camera_httpd, &ledoff_uri);
-        httpd_register_uri_handler(camera_httpd, &health_uri);
-        httpd_register_uri_handler(camera_httpd, &correction_uri);
+        httpd_register_uri_handler(camera_httpd, &capture_uri);
     }
 
     config.server_port += 1;
@@ -766,4 +645,10 @@ void startCameraServer()
     }
 }
 
-
+void WheelAct(int nLf, int nLb, int nRf, int nRb)
+{
+    digitalWrite(gpLf, nLf);
+    digitalWrite(gpLb, nLb);
+    digitalWrite(gpRf, nRf);
+    digitalWrite(gpRb, nRb);
+}

@@ -1,10 +1,3 @@
-
-/*
- * @Date: 2020-11-27 11:45:09
- * @Description: ESP32 Camera Surveillance Car
- * @FilePath:
- */
-
 #include "esp_camera.h"
 #include <WiFi.h>
 

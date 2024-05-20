@@ -6,6 +6,8 @@ from detection import find_and_localize_object
 import cv2
 import json
 import numpy as np
+import requests
+from matplotlib import pyplot as plt
 
 # Flask constructor takes the name of 
 # current module (__name__) as argument.
@@ -36,19 +38,49 @@ def car_motion_stop():
 
 @app.route('/camera/detection_comp' ,methods=[ 'GET'])
 def detect_object():
-    return find_and_localize_object(cv2.imread('query.jpeg',0))
+    return find_and_localize_object(cv2.imread('check.jpg',0))
 
 @app.route('/camera/detection_car', methods=['POST'])
 def detect1_object():
-    if 'image' not in request.files:
-        return "No image provided", 400
-    image_file = request.files['image']
-    image_np = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), cv2.IMREAD_COLOR)
-    result = find_and_localize_object(image_np)
+    try:
+        response = requests.get('http://192.168.43.240/left')
+        if response.status_code == 200:
+                # Retrieve image data as bytes
+                image_data = response.content
+                
+                # Decode image data using OpenCV
+                image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+                # Rotate the image
+                angle = -90  # You can change this angle as needed
+                rotated_image = rotate_image(image_np, angle)
+        
+                # Convert the rotated image to grayscale
+                gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)
+                # Now you can process the image_np as needed
+
+        else:
+                print("Failed to retrieve image:", response.status_code)
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+    result = find_and_localize_object(gray_image)
     
-    return result
+    #return result
+
+def rotate_image(image, angle):
+    # Get the dimensions of the image
+    (h, w) = image.shape[:2]
+    # Calculate the center of the image
+    center = (w / 2, h / 2)
+    
+    # Get the rotation matrix
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    # Perform the rotation
+    rotated = cv2.warpAffine(image, M, (w, h))
+    return rotated
+
 if __name__ == '__main__':
-	app.run(debug=True, port=8080)
+	# app.run(debug=True, port=8080)
+    detect1_object()
 
 
 
