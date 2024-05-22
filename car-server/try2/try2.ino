@@ -12,8 +12,8 @@
 //#define CAMERA_MODEL_M5STACK_PSRAM
 #define CAMERA_MODEL_AI_THINKER
 
-const char *ssid = "Tal";		   // Enter SSID WIFI Name
-const char *password = "harp130298"; // Enter WIFI Password
+const char *ssid = "Netanel";		   // Enter SSID WIFI Name
+const char *password = "0526505776"; // Enter WIFI Password
 
 #if defined(CAMERA_MODEL_WROVER_KIT)
 #define PWDN_GPIO_NUM -1

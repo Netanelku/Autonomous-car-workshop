@@ -2,12 +2,13 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-def find_and_localize_object(query_image):  # query_image):
+def find_and_localize_object(query_image):
     # Initialize SIFT detector
     sift = cv2.SIFT_create()
     image_collection = [
         cv2.imread("Figure_1.png", 0),
-        cv2.imread("Figure_2.png", 0)
+        cv2.imread("Figure_2.png", 0),
+        cv2.imread("grayscale_19.jpg", 0)
     ]
 
     # Detect keypoints and descriptors for the query image
@@ -18,7 +19,7 @@ def find_and_localize_object(query_image):  # query_image):
     best_match_score = 0  # Initialize with a large value
 
     # Set a threshold for match score
-    threshold = 3  # Adjust as needed
+    threshold = 8  # Adjust as needed
 
     # Iterate through the image collection
     for i, img in enumerate(image_collection):
@@ -78,14 +79,13 @@ def find_and_localize_object(query_image):  # query_image):
         # Draw matches
         img_matches = cv2.drawMatches(query_image, kp1, image_collection[best_match_index], best_kp2, best_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
         
-        # Plot the matches
-        plt.figure(figsize=(12, 6))
-        plt.imshow(img_matches, cmap='gray')
-        plt.title(f'Feature Matching with Image {best_match_index + 1}')
-        plt.show()
+        # Save the image with matches
+        result_image_path = f'images/result_image_{best_match_index + 1}.jpg'
+        cv2.imwrite(result_image_path, img_matches)
+        print(f"Result image saved as {result_image_path}")
 
         return {"best_match_index": best_match_index, "distance_to_center": distance_to_center, "location": location}
 
     else:
-        print("No suitable match found.")
-        return None
+        return {"best_match_index": -1}
+
