@@ -14,7 +14,7 @@ import time
 # current module (__name__) as argument.
 app = Flask(__name__)
 CORS(app)
-
+car_address='10.0.0.30'
 @app.route('/', methods=['GET'])
 def readme():
     with open('./readme.txt', 'r') as file:
@@ -41,6 +41,49 @@ def car_motion_stop():
 def detect_object():
     return find_and_localize_object(cv2.imread('check.jpg',0))
 
+@app.route('/camera/save_object', methods=['GET'])
+def save_object():
+    objects_path = 'objects'
+    if not os.path.exists(objects_path):
+        os.makedirs(objects_path)
+    
+    if not car_address:
+        return "Missing 'car_address' parameter", 400
+    
+    object_name = request.args.get('name')
+    if not object_name:
+        return "Missing 'name' parameter", 400
+
+    try:
+        response = requests.get(f'http://{car_address}/ledon')
+        response.raise_for_status()
+        
+        time.sleep(1)
+
+        response = requests.get(f'http://{car_address}/left')
+        response.raise_for_status()
+        
+        if response.status_code == 200:
+            image_data = response.content
+            # Decode image data using OpenCV
+            image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+            # Rotate the image
+            angle = -90  # You can change this angle as needed
+            rotated_image = rotate_image(image_np, angle)
+            # Convert the rotated image to grayscale
+            gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)
+            # Save the grayscale image
+            grayscale_image_path = os.path.join(objects_path, f'grayscale_{object_name}.jpg')
+            cv2.imwrite(grayscale_image_path, gray_image)
+        
+        response = requests.get(f'http://{car_address}/ledoff')
+        response.raise_for_status()
+
+    except requests.exceptions.RequestException as e:
+        return str(e), 500
+
+    return f'{object_name} object saved successfully into {grayscale_image_path}', 200
+    
 @app.route('/camera/locating_any_objects', methods=['GET'])
 def detect1_object(save_path='images'):
     found = -1
@@ -49,39 +92,38 @@ def detect1_object(save_path='images'):
     # Ensure the save directory exists
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    
+    response = requests.get(f'http://{car_address}/ledon')
+    count=0
     while found == -1:
+        print(count)
+        count+=1
         try:
-            response = requests.get('http://10.0.0.11/left')
-            
+            print('fetching image')
+            response = requests.get(f'http://{car_address}/left')
+            print('image fetched')
             if response.status_code == 200:
                 # Retrieve image data as bytes
                 image_data = response.content
-                
                 # Decode image data using OpenCV
-                image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-                
-
-                
+                image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)                
                 # Rotate the image
                 angle = -90  # You can change this angle as needed
                 rotated_image = rotate_image(image_np, angle)
-
                 # Convert the rotated image to grayscale
-                gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)
-                
+                gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
                 # Save the grayscale image
                 grayscale_image_path = os.path.join(save_path, f'grayscale_{image_count}.jpg')
                 cv2.imwrite(grayscale_image_path, gray_image)
-                
+      
                 # Process the image to find and localize the object
+                print('analyzing captured frame')
                 result = find_and_localize_object(gray_image)
                 found = result["best_match_index"]
                 
                 # If the object is not found, send a request to move the camera
                 if found == -1:  
-                    move_response = requests.get('http://10.0.0.11/go?dir=left&delay=300')
-                    time.sleep(0.5)
+                    move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=300')
+                    time.sleep(1)
                     if move_response.status_code != 200:
                         print("Failed to move camera:", move_response.status_code)
                 
@@ -91,7 +133,7 @@ def detect1_object(save_path='images'):
         
         except requests.exceptions.RequestException as e:
             print("Error:", e)
-    
+    response = requests.get(f'http://{car_address}/ledoff')
     return f'found {found}'
 def rotate_image(image, angle):
     # Get the dimensions of the image

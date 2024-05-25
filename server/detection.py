@@ -1,25 +1,33 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import os
+import glob
+
 
 def find_and_localize_object(query_image):
     # Initialize SIFT detector
     sift = cv2.SIFT_create()
-    image_collection = [
-        cv2.imread("Figure_1.png", 0),
-        cv2.imread("Figure_2.png", 0),
-        cv2.imread("grayscale_19.jpg", 0)
-    ]
+    objects_path = 'objects'
+    image_pattern = os.path.join(objects_path, 'grayscale_*.jpg')
+    image_files = glob.glob(image_pattern)
+    
+    image_collection = []
+    for file in image_files:
+        print(f'reading {file}')
+        image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+        if image is not None:
+            image_collection.append(image)
 
     # Detect keypoints and descriptors for the query image
     kp1, des1 = sift.detectAndCompute(query_image, None)
 
     # Initialize variables to store the best match
     best_match_index = -1
-    best_match_score = 0  # Initialize with a large value
+    best_match_score = 0
 
     # Set a threshold for match score
-    threshold = 8  # Adjust as needed
+    threshold = 12  # Adjust as needed
 
     # Iterate through the image collection
     for i, img in enumerate(image_collection):
@@ -66,8 +74,10 @@ def find_and_localize_object(query_image):
         # Get dimensions of the image
         h, w = query_image.shape[:2]
         # Calculate distance from centroid to center of the image
-        distance_to_center = centroid[0] - w / 2
-        print(centroid, w)
+        center_image = (w // 2, h // 2)
+        centroid_point = (int(centroid[0]), int(centroid[1]))
+        distance_to_center = centroid_point[0] - center_image[0]
+        
         # Determine the location of the centroid with respect to the center
         if distance_to_center < -w * 0.1:
             location = "left"
@@ -78,7 +88,24 @@ def find_and_localize_object(query_image):
 
         # Draw matches
         img_matches = cv2.drawMatches(query_image, kp1, image_collection[best_match_index], best_kp2, best_matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+
+        # Draw the centroid point and the center of the image
+        cv2.circle(img_matches, centroid_point, 5, (0, 255, 0), -1)
+        cv2.circle(img_matches, center_image, 5, (255, 0, 0), -1)
+        cv2.line(img_matches, center_image, centroid_point, (255, 0, 255), 2)
+
+        # Add text annotations
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.5
+        color = (255, 255, 255)
+        thickness = 1
+        cv2.putText(img_matches, 'Centroid of Features', (centroid_point[0] + 10, centroid_point[1]), font, font_scale, color, thickness, cv2.LINE_AA)
+        cv2.putText(img_matches, 'Center of Frame', (center_image[0] + 10, center_image[1]), font, font_scale, color, thickness, cv2.LINE_AA)
         
+        # Annotate the distance
+        mid_point = ((center_image[0] + centroid_point[0]) // 2, (center_image[1] + centroid_point[1]) // 2)
+        cv2.putText(img_matches, f'{abs(distance_to_center):.2f}px', mid_point, font, font_scale, (255, 255, 0), thickness, cv2.LINE_AA)
+
         # Save the image with matches
         result_image_path = f'images/result_image_{best_match_index + 1}.jpg'
         cv2.imwrite(result_image_path, img_matches)
@@ -88,4 +115,3 @@ def find_and_localize_object(query_image):
 
     else:
         return {"best_match_index": -1}
-
