@@ -43,7 +43,7 @@ extern int carDirection;
 //handler functions for controlling the car
 static esp_err_t forward_handler(httpd_req_t *req);
 static esp_err_t backward_handler(httpd_req_t *req);
-static esp_err_t left_handler(httpd_req_t *req);
+static esp_err_t captureFrame_handler(httpd_req_t *req);
 static esp_err_t right_handler(httpd_req_t *req);
 static esp_err_t lights_handler(httpd_req_t *req);
 static esp_err_t index_handler(httpd_req_t *req);
@@ -63,7 +63,7 @@ extern httpd_handle_t lights_httpd ;
 extern httpd_handle_t stop_httpd ;
 extern httpd_handle_t backward_httpd ;
 extern httpd_handle_t forward_httpd;
-extern httpd_handle_t left_httpd ;
+extern httpd_handle_t captureFrame_httpd ;
 extern httpd_handle_t right_httpd ;
 
 
