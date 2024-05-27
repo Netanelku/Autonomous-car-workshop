@@ -148,7 +148,7 @@ static esp_err_t back_handler(httpd_req_t *req)
     return httpd_resp_send(req, "OK", 2);
 }
 
-static esp_err_t captureFrame_handler(httpd_req_t *req)
+static esp_err_t left_handler(httpd_req_t *req)
 {
     Serial.println("capture request");
     camera_fb_t *fb = NULL;
@@ -256,10 +256,10 @@ void startCameraServer()
         .handler = stop_handler,
         .user_ctx = NULL};
 
-    httpd_uri_t captureFrame_uri = {
-        .uri = "/captureFrame",
+    httpd_uri_t left_uri = {
+        .uri = "/left",
         .method = HTTP_GET,
-        .handler = captureFrame_handler,
+        .handler = left_handler,
         .user_ctx = NULL};
 
     httpd_uri_t right_uri = {
@@ -298,7 +298,7 @@ void startCameraServer()
         httpd_register_uri_handler(car_httpd, &go_uri);
         httpd_register_uri_handler(car_httpd, &back_uri);
         httpd_register_uri_handler(car_httpd, &stop_uri);
-        httpd_register_uri_handler(car_httpd, &captureFrame_uri);
+        httpd_register_uri_handler(car_httpd, &left_uri);
         httpd_register_uri_handler(car_httpd, &right_uri);
         httpd_register_uri_handler(car_httpd, &ledon_uri);
         httpd_register_uri_handler(car_httpd, &ledoff_uri);
