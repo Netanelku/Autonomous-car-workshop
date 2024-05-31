@@ -1,6 +1,8 @@
- ESP32 Camera Car Server
 
-This folder contains the main server application for connecting the UI to the ESP32 camera car. The server facilitates communication and provides important endpoints for controlling the car and performing object detection.
+# ESP32 Camera Car Server
+
+This folder contains the main server application for connecting the UI to the ESP32 camera car.
+The server facilitates communication and provides important endpoints for controlling the car and performing object detection.
 
 ## Table of Contents
 - [Installation](#Installation)
