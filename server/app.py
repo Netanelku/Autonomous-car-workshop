@@ -2,7 +2,7 @@
 # An object of Flask class is our WSGI application.
 from flask import Flask, request
 from flask_cors import CORS
-from detection import find_and_localize_object
+from detection import ObjectLocalizer
 import cv2
 import json
 import numpy as np
@@ -10,36 +10,47 @@ import requests
 from matplotlib import pyplot as plt
 import os
 import time
+
 # Flask constructor takes the name of 
 # current module (__name__) as argument.
 app = Flask(__name__)
 CORS(app)
-car_address='10.0.0.30'
+
+# car_address = '10.0.0.30'
+car_address = '192.168.43.240'
+
+# Initialize ObjectLocalizer instance
+
 @app.route('/', methods=['GET'])
 def readme():
     with open('./readme.txt', 'r') as file:
         readme_content = file.read()
     return readme_content
 
-@app.route('/health',methods=[ 'GET'])
+@app.route('/health', methods=['GET'])
 def test():
-	return 'TEST endpoint'
+    return 'TEST endpoint'
 
-@app.route('/car/health' ,methods=[ 'GET'])
+@app.route('/car/health', methods=['GET'])
 def car_health():
     pass
 
-@app.route('/car/motion/start' ,methods=[ 'GET'])
+@app.route('/car/motion/start', methods=['GET'])
 def car_motion_start():
     pass
 
-@app.route('/car/motion/stop' ,methods=[ 'GET'])
+@app.route('/car/motion/stop', methods=['GET'])
 def car_motion_stop():
     pass
 
-@app.route('/camera/detection_comp' ,methods=[ 'GET'])
+@app.route('/camera/detection_comp', methods=['GET'])
 def detect_object():
-    return find_and_localize_object(cv2.imread('check.jpg',0))
+    query_image_path = 'check.jpg'
+    query_image = cv2.imread(query_image_path, cv2.IMREAD_GRAYSCALE)
+    if query_image is None:
+        return f"Error reading query image: {query_image_path}", 400
+    result = localizer.find_and_localize_object(query_image)
+    return json.dumps(result)
 
 @app.route('/camera/save_object', methods=['GET'])
 def save_object():
@@ -59,10 +70,10 @@ def save_object():
         response.raise_for_status()
         
         time.sleep(1)
-
+        print('fetching image')
         response = requests.get(f'http://{car_address}/left')
         response.raise_for_status()
-        
+        print('image fetched')
         if response.status_code == 200:
             image_data = response.content
             # Decode image data using OpenCV
@@ -74,7 +85,17 @@ def save_object():
             gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)
             # Save the grayscale image
             grayscale_image_path = os.path.join(objects_path, f'grayscale_{object_name}.jpg')
-            cv2.imwrite(grayscale_image_path, gray_image)
+            height, width = gray_image.shape[:2]
+
+            # Calculate the new height
+            new_height = int(height * 0.4)
+
+            # Crop the image
+            cropped_img = gray_image[new_height:height, 0:width]
+
+            print(f'Saving {object_name} object to {grayscale_image_path}')
+            cv2.imwrite(grayscale_image_path, cropped_img)
+            print(f'{object_name} object saved successfully into {grayscale_image_path}')
         
         response = requests.get(f'http://{car_address}/ledoff')
         response.raise_for_status()
@@ -88,15 +109,16 @@ def save_object():
 def detect1_object(save_path='images'):
     found = -1
     image_count = 0
+    localizer = ObjectLocalizer()
 
     # Ensure the save directory exists
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     response = requests.get(f'http://{car_address}/ledon')
-    count=0
+    count = 0
     while found == -1:
         print(count)
-        count+=1
+        count += 1
         try:
             print('fetching image')
             response = requests.get(f'http://{car_address}/left')
@@ -113,17 +135,26 @@ def detect1_object(save_path='images'):
                 gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
                 # Save the grayscale image
                 grayscale_image_path = os.path.join(save_path, f'grayscale_{image_count}.jpg')
-                cv2.imwrite(grayscale_image_path, gray_image)
+                height, width = gray_image.shape[:2]
+
+                # Calculate the new height
+                new_height = int(height * 0.4)
+
+                # Crop the image
+                cropped_img = gray_image[new_height:height, 0:width]
+
+                # Save the cropped image
+                cv2.imwrite(grayscale_image_path, cropped_img)
       
                 # Process the image to find and localize the object
                 print('analyzing captured frame')
-                result = find_and_localize_object(gray_image)
+                result = localizer.find_and_localize_object(cropped_img)
                 found = result["best_match_index"]
                 
                 # If the object is not found, send a request to move the camera
                 if found == -1:  
-                    move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=300')
-                    time.sleep(1)
+                    move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=450')
+                    time.sleep(0.5)
                     if move_response.status_code != 200:
                         print("Failed to move camera:", move_response.status_code)
                 
@@ -135,6 +166,7 @@ def detect1_object(save_path='images'):
             print("Error:", e)
     response = requests.get(f'http://{car_address}/ledoff')
     return f'found {found}'
+
 def rotate_image(image, angle):
     # Get the dimensions of the image
     (h, w) = image.shape[:2]
@@ -161,10 +193,4 @@ def rotate_image(image, angle):
     return rotated
 
 if __name__ == '__main__':
-	app.run(debug=True, port=8080)
-    # detect1_object()
-
-
-
-
-
+    app.run(debug=True, port=8080)

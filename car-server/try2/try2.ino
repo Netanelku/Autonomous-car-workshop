@@ -11,8 +11,8 @@
 #include "esp_http_server.h"
 #include "esp_camera.h"
 
-const char *ssid = "lior";		   // Enter SSID WIFI Name
-const char *password = "ab060668"; // Enter WIFI Password
+const char *ssid = "Tal";		   // Enter SSID WIFI Name
+const char *password = "harp130298"; // Enter WIFI Password
 // This project was tested with the AI Thinker Model, M5STACK PSRAM Model and M5STACK WITHOUT PSRAM
 #define CAMERA_MODEL_AI_THINKER
 //#define CAMERA_MODEL_M5STACK_PSRAM
@@ -141,7 +141,7 @@ void setup()
   // config.frame_size = FRAMESIZE_SVGA;
   config.frame_size = FRAMESIZE_CIF;
   // config.frame_size = FRAMESIZE_VGA;
-  config.jpeg_quality = 10;
+  config.jpeg_quality = 50;
   config.fb_count = 1;
 
   
