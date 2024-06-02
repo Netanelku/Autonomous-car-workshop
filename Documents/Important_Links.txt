@@ -1,0 +1,8 @@
+Important Links: 
+
+Link to ESP32-CAM Guides: https://randomnerdtutorials.com/projects-esp32-cam/2/
+Flask server Tutorial:  https://flask.palletsprojects.com/en/3.0.x/quickstart/
+Esp32 camera buffer solution: https://stackoverflow.com/questions/72457769/arduino-esp32-cam-frame-buffer-clear
+SIFT detector: https://medium.com/@deepanshut041/introduction-to-sift-scale-invariant-feature-transform-65d7f3a72d40
+UI based React: https://legacy.reactjs.org/
+YOLO Model: 
