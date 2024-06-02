@@ -35,6 +35,16 @@ def test():
 def car_health():
     pass
 
+@app.route('/car/setIpAddress', methods=['GET'])
+def set_ip_address():
+    global car_address
+    ip_address = request.args.get('ip_address')
+    if not ip_address:
+        return "Missing 'ip_address' parameter", 400
+    car_address = ip_address
+    return f"Car IP address set to {car_address}"
+
+
 @app.route('/car/motion/start', methods=['GET'])
 def car_motion_start():
     pass
@@ -45,6 +55,7 @@ def car_motion_stop():
 
 @app.route('/camera/detection_comp', methods=['GET'])
 def detect_object():
+    localizer = ObjectLocalizer()
     query_image_path = 'check.jpg'
     query_image = cv2.imread(query_image_path, cv2.IMREAD_GRAYSCALE)
     if query_image is None:
