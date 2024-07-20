@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from detection import ObjectLocalizer
 import cv2
@@ -22,10 +22,6 @@ def readme():
         readme_content = file.read()
     return readme_content
 
-@app.route('/health', methods=['GET'])
-def test():
-    return 'TEST endpoint'
-
 @app.route('/car/health', methods=['GET'])
 def car_health():
     pass
@@ -41,7 +37,21 @@ def car_motion_stop():
 # ================================
 # Car Endpoints
 # ================================
-
+@app.route('/health', methods=['GET'])
+def health_check():
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+    car_address=config['car_address']
+    car_server_url = f'http://{car_address}/'
+    try:
+        response = requests.get(car_server_url)
+        if response.status_code == 200:
+            return jsonify({'status': 'ok', 'message': 'Car server is live'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'Car server is not reachable'}), response.status_code
+    except requests.exceptions.RequestException as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+    
 @app.route('/camera/detection_comp', methods=['GET'])
 def detect_object():
     localizer = ObjectLocalizer()
@@ -58,22 +68,20 @@ def save_object():
     if not object_name:
         return "Missing 'name' parameter", 400
     try:
-        image_utils.capture_frame(frame_type="object",frame_name={object_name})
+        image_utils.capture_frame(frame_type="object",frame_name=object_name)
     except requests.exceptions.RequestException as e:
         return str(e), 500
 
     return f'{object_name} object saved successfully', 200
     
 @app.route('/camera/locating_any_objects', methods=['GET'])
-def detect1_object(save_path='images'):
+def detect1_object():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     car_address=config['car_address']
     found = -1
     image_count = 0
     localizer = ObjectLocalizer()
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
     count = 0
     while found == -1:
         print(count)
@@ -81,9 +89,9 @@ def detect1_object(save_path='images'):
         try:
             cropped_img = image_utils.capture_frame(frame_type="stream",frame_name=f'{count}')
             print('analyzing captured frame')
-            result = localizer.find_and_localize_object(cropped_img)
-            found = result["best_match_index"]
-            if found == -1:  
+            # result = localizer.find_and_localize_object(cropped_img)
+            # found = result["best_match_index"]
+            if found == -1 and count!=6:  
                 move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=450')
                 time.sleep(0.5)
                 if move_response.status_code != 200:

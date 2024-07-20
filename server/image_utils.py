@@ -25,15 +25,16 @@ def capture_frame(frame_type,frame_name=""):
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     if frame_type == "stream":
-        image_filename = f'{frame_type} frame number:{frame_name} {formatted_time}'
-        save_directory = config['images']['stream_path']
+        image_filename = f'{frame_type}_frame_{frame_name}.jpg'
+        save_directory = config['image_paths']['stream_path']
     else:
-        image_filename = f'object {frame_name}'
-        save_directory = config['images']['objects_path']
+        image_filename = f'object_{frame_name}.jpg'
+        save_directory = config['image_paths']['objects_path']
+
     car_address = config['car_address']
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
-    print('fetching image')
+    print('Fetching image from car address...')
     try: 
         requests.get(f'http://{car_address}/ledon')
         time.sleep(1)
@@ -41,15 +42,29 @@ def capture_frame(frame_type,frame_name=""):
         requests.get(f'http://{car_address}/ledoff')
         print('image fetched')
         if response.status_code == 200:
-                    image_data = response.content
-                    image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)                
+            image_data = response.content
+            image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+            if image_np is not None:
+                    print('Image successfully fetched and decoded.')         
                     rotated_image = rotate_image(image_np)
                     gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
-                    grayscale_image_path = os.path.join(save_directory, image_filename)
+                    image_path = os.path.join(save_directory,image_filename)
                     height, width = gray_image.shape[:2]
                     new_height = int(height * 0.4)
                     cropped_img = gray_image[new_height:height, 0:width]
-                    cv2.imwrite(grayscale_image_path, cropped_img)
+                    cv2.imwrite(image_path, cropped_img)
+                    if os.path.exists(image_path):
+                        print(f'Image successfully saved to {image_path}')
+                    else:
+                        print(f'Failed to save image to {image_path}')
+                    return cropped_img
+            else:
+                print('Error: Decoded image is None.')
+        else:
+            print(f'Error fetching image. Status code: {response.status_code}')
     except requests.exceptions.RequestException as e:
-        print("Error:", e)
-    return cropped_img
+        print("Request error:", e)
+    except Exception as e:
+        print("Unexpected error:", e)
+
+    return None
