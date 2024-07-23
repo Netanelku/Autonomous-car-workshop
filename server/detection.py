@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import glob
+from ultralytics import YOLO
 
 class ObjectLocalizer:
     def __init__(self, objects_path='objects'):
@@ -116,3 +117,23 @@ class ObjectLocalizer:
         else:
             print("No suitable match found.")
             return {"best_match_index": -1}
+
+
+class ObjectDetector:
+    def __init__(self):
+         self.model=YOLO('yolov8n.pt')
+         self.model.train(data=r'C:\Users\Netanel\Desktop\Yaek Khaya v3.v2i.yolov8-obb\data.yaml', epochs=50, batch=16, imgsz=640)
+
+    def detect(self,image_path):
+        image_path = image_path
+        results = self.model(image_path)
+        if isinstance(results, list):
+            for result in results:
+                result.plot()  # Plot each result individually
+        else:
+            # Plot if it's a single result object
+            results.plot()
+
+# image_path='milk.jpg'
+# A1=ObjectDetector()
+# A1.detect(image_path)

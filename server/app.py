@@ -91,7 +91,9 @@ def detect1_object():
             print('analyzing captured frame')
             # result = localizer.find_and_localize_object(cropped_img)
             # found = result["best_match_index"]
-            if found == -1 and count!=6:  
+            if count==6:
+                break
+            if found == -1:  
                 move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=450')
                 time.sleep(0.5)
                 if move_response.status_code != 200:
