@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from detection import ObjectLocalizer
+from detection import ObjectDetector
 import cv2
 import json
 import requests
@@ -54,7 +54,7 @@ def health_check():
     
 @app.route('/camera/detection_comp', methods=['GET'])
 def detect_object():
-    localizer = ObjectLocalizer()
+    localizer = ObjectDetector()
     query_image_path = 'check.jpg'
     query_image = cv2.imread(query_image_path, cv2.IMREAD_GRAYSCALE)
     if query_image is None:
@@ -68,10 +68,9 @@ def save_object():
     if not object_name:
         return "Missing 'name' parameter", 400
     try:
-        image_utils.capture_frame(frame_type="object",frame_name=object_name)
+        image_utils.capture_frame(frame_type="object",frame_name=f'{object_name}')
     except requests.exceptions.RequestException as e:
         return str(e), 500
-
     return f'{object_name} object saved successfully', 200
     
 @app.route('/camera/locating_any_objects', methods=['GET'])
@@ -81,7 +80,7 @@ def detect1_object():
     car_address=config['car_address']
     found = -1
     image_count = 0
-    localizer = ObjectLocalizer()
+    detector = ObjectDetector()
     count = 0
     while found == -1:
         print(count)
@@ -89,13 +88,12 @@ def detect1_object():
         try:
             cropped_img = image_utils.capture_frame(frame_type="stream",frame_name=f'{count}')
             print('analyzing captured frame')
-            # result = localizer.find_and_localize_object(cropped_img)
-            # found = result["best_match_index"]
-            if count==6:
+            result = detector.detect(cropped_img)
+            print(result)
+            if count==20:
                 break
             if found == -1:  
-                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=450')
-                time.sleep(0.5)
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=150')
                 if move_response.status_code != 200:
                     print("Failed to move camera:", move_response.status_code)
                 image_count += 1

@@ -25,7 +25,7 @@ def capture_frame(frame_type,frame_name=""):
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     if frame_type == "stream":
-        image_filename = f'{frame_type}_frame_{frame_name} {formatted_time}.jpg'
+        image_filename = f'{frame_type}_frame_{frame_name}.jpg'
         save_directory = config['image_paths']['stream_path']
     else:
         image_filename = f'object_{frame_name}.jpg'
@@ -37,7 +37,7 @@ def capture_frame(frame_type,frame_name=""):
     print('Fetching image from car address...')
     try: 
         requests.get(f'http://{car_address}/ledon')
-        time.sleep(2)
+        time.sleep(1.5)
         response = requests.get(f'http://{car_address}/left')
         requests.get(f'http://{car_address}/ledoff')
         print('image fetched')
@@ -47,17 +47,17 @@ def capture_frame(frame_type,frame_name=""):
             if image_np is not None:
                     print('Image successfully fetched and decoded.')         
                     rotated_image = rotate_image(image_np)
-                    gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
+                    # gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
                     image_path = os.path.join(save_directory,image_filename)
                     # height, width = gray_image.shape[:2]
                     # new_height = int(height * 0.4)
                     # cropped_img = gray_image[new_height:height, 0:width]
-                    cv2.imwrite(image_path, gray_image)
+                    cv2.imwrite(image_path, rotated_image)
                     if os.path.exists(image_path):
                         print(f'Image successfully saved to {image_path}')
                     else:
                         print(f'Failed to save image to {image_path}')
-                    return cropped_img
+                    return rotated_image
             else:
                 print('Error: Decoded image is None.')
         else:

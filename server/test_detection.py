@@ -3,7 +3,7 @@ from PIL import Image
 import cv2
 
 model = YOLO('yolov8n.pt')
-img = cv2.imread('images/objects/object_doll.jpg')
+img = cv2.imread('images/objects/object_bottle15.jpg')
 results = model(img)
 
 # for index, row in boxes.iterrows():

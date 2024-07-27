@@ -122,17 +122,25 @@ class ObjectLocalizer:
 class ObjectDetector:
     def __init__(self):
          self.model=YOLO('yolov8n.pt')
-         self.model.train(data=r'C:\Users\Netanel\Desktop\Yaek Khaya v3.v2i.yolov8-obb\data.yaml', epochs=50, batch=16, imgsz=640)
+         self.counter=0
 
-    def detect(self,image_path):
-        image_path = image_path
-        results = self.model(image_path)
-        if isinstance(results, list):
-            for result in results:
-                result.plot()  # Plot each result individually
-        else:
-            # Plot if it's a single result object
-            results.plot()
+    def detect(self,image):
+        results = self.model(image)
+        self.counter+=1
+        return_value =[]
+        for result in results:
+            boxes = result.boxes
+            for box in boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])  # Get the bounding box coordinates
+                confidence = box.conf[0]  # Get the confidence score
+                cls = int(box.cls[0])  # Get the class index
+                label = self.model.names[cls]  # Get the class label
+                return_value.append((label,confidence))
+                # Draw the bounding box and label on the image
+                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.imwrite(f'images/results/result-{ self.counter}.jpg',image)
+        return return_value
 
 # image_path='milk.jpg'
 # A1=ObjectDetector()
