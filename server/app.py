@@ -77,7 +77,7 @@ def save_object():
 def detect1_object():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
-    car_address=config['car_address']
+    car_address = config['car_address']
     found = -1
     image_count = 0
     detector = ObjectDetector()
@@ -86,20 +86,45 @@ def detect1_object():
         print(count)
         count += 1
         try:
-            cropped_img = image_utils.capture_frame(frame_type="stream",frame_name=f'{count}')
-            print('analyzing captured frame')
-            result = detector.detect(cropped_img)
-            print(result)
-            if count==20:
+            cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
+            print('Analyzing captured frame')
+            results = detector.detect(cropped_img)
+            print(results)
+            if count == 20:
                 break
-            if found == -1:  
-                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=150')
-                if move_response.status_code != 200:
-                    print("Failed to move camera:", move_response.status_code)
-                image_count += 1
+
+            for result in results:
+                label, confidence, x1, y1, x2, y2 = result
+                if confidence > 0.5:  # Adjust the confidence threshold as needed
+                    found = 1
+                    # Calculate the centroid of the bounding box
+                    centroid_x = (x1 + x2) // 2
+                    w = cropped_img.shape[1]
+                    # Determine the location of the centroid with respect to the center
+                    if centroid_x < w * 0.4:
+                        location = "left"
+                    elif centroid_x > w * 0.6:
+                        location = "right"
+                    else:
+                        location = "middle"
+
+                    if location == "left":
+                        move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=150')
+                    elif location == "right":
+                        move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay=150')
+                    else:
+                        move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay=150')
+
+                    if move_response.status_code != 200:
+                        print("Failed to move car:", move_response.status_code)
+
+                    image_count += 1
+                    break
         except requests.exceptions.RequestException as e:
             print("Error:", e)
+
     return f'found {found}'
+
 
 # ================================
 # Main Execution

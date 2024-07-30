@@ -121,13 +121,13 @@ class ObjectLocalizer:
 
 class ObjectDetector:
     def __init__(self):
-         self.model=YOLO('yolov8n.pt')
-         self.counter=0
+        self.model = YOLO('yolov8n.pt')
+        self.counter = 0
 
-    def detect(self,image):
+    def detect(self, image):
         results = self.model(image)
-        self.counter+=1
-        return_value =[]
+        self.counter += 1
+        return_value = []
         for result in results:
             boxes = result.boxes
             for box in boxes:
@@ -135,12 +135,13 @@ class ObjectDetector:
                 confidence = box.conf[0]  # Get the confidence score
                 cls = int(box.cls[0])  # Get the class index
                 label = self.model.names[cls]  # Get the class label
-                return_value.append((label,confidence))
+                return_value.append((label, confidence, x1, y1, x2, y2))
                 # Draw the bounding box and label on the image
                 cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.imwrite(f'images/results/result-{ self.counter}.jpg',image)
+        cv2.imwrite(f'images/results/result-{self.counter}.jpg', image)
         return return_value
+
 
 # image_path='milk.jpg'
 # A1=ObjectDetector()
