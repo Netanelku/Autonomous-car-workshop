@@ -119,6 +119,13 @@ class ObjectLocalizer:
             return {"best_match_index": -1}
 
 
+import cv2
+from ultralytics import YOLO
+
+import cv2
+import math
+from ultralytics import YOLO
+
 class ObjectDetector:
     def __init__(self):
         self.model = YOLO('yolov8n.pt')
@@ -128,6 +135,15 @@ class ObjectDetector:
         results = self.model(image)
         self.counter += 1
         return_value = []
+
+        # Get image dimensions
+        height, width, _ = image.shape
+        # Calculate the center of the frame
+        center_frame_x, center_frame_y = width // 2, height // 2
+
+        # Draw the center point of the frame
+        cv2.circle(image, (center_frame_x, center_frame_y), 5, (255, 0, 0), -1)
+
         for result in results:
             boxes = result.boxes
             for box in boxes:
@@ -135,12 +151,35 @@ class ObjectDetector:
                 confidence = box.conf[0]  # Get the confidence score
                 cls = int(box.cls[0])  # Get the class index
                 label = self.model.names[cls]  # Get the class label
-                return_value.append((label, confidence, x1, y1, x2, y2))
+
+                # Calculate the center of the object
+                center_object_x, center_object_y = (x1 + x2) // 2, (y1 + y2) // 2
+
+                # Calculate the length of the line
+                line_length = math.sqrt((center_frame_x - center_object_x) ** 2 + (center_frame_y - center_object_y) ** 2)
+
+                return_value.append((label, confidence, x1, y1, x2, y2, line_length))
+
                 # Draw the bounding box and label on the image
                 cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                # Draw the center point of the object
+                cv2.circle(image, (center_object_x, center_object_y), 5, (0, 0, 255), -1)
+
+                # Draw a line between the center of the frame and the center of the object
+                cv2.line(image, (center_frame_x, center_frame_y), (center_object_x, center_object_y), (255, 255, 0), 2)
+
+                # Optionally, draw the line length on the image
+                midpoint_x = (center_frame_x + center_object_x) // 2
+                midpoint_y = (center_frame_y + center_object_y) // 2
+                cv2.putText(image, f'{line_length:.2f}', (midpoint_x, midpoint_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+        # Save the image with drawn points and lines
         cv2.imwrite(f'images/results/result-{self.counter}.jpg', image)
+        
         return return_value
+
 
 
 # image_path='milk.jpg'
