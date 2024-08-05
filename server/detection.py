@@ -120,9 +120,6 @@ class ObjectLocalizer:
 
 
 import cv2
-from ultralytics import YOLO
-
-import cv2
 import math
 from ultralytics import YOLO
 
@@ -175,8 +172,18 @@ class ObjectDetector:
                 midpoint_y = (center_frame_y + center_object_y) // 2
                 cv2.putText(image, f'{line_length:.2f}', (midpoint_x, midpoint_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
+        # Ensure the 'results' directory exists
+        results_dir = 'images/results'
+        if not os.path.exists(results_dir):
+            os.makedirs(results_dir)
+
         # Save the image with drawn points and lines
-        cv2.imwrite(f'images/results/result-{self.counter}.jpg', image)
+        result_image_path = os.path.join(results_dir, f'result-{self.counter}.jpg')
+        cv2.imwrite(result_image_path, image)
+        if os.path.exists(result_image_path):
+            print(f'Image successfully saved to {result_image_path}')
+        else:
+            print(f'Failed to save image to {result_image_path}')
         
         return return_value
 

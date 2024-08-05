@@ -10,7 +10,6 @@ import time
 import image_utils
 import yaml
 import uvicorn
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -130,11 +129,11 @@ async def detect1_object(object_label: str):
 
                         if location == "left":
                             print("left")
-                            move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={distance}')
+                            move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={round(distance)}')
                             
                         elif location == "right":
                             print("right")
-                            move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay={distance}')
+                            move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay={round(distance)}')
                         else:
                             print("forward")
                             found = 2

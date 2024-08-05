@@ -1,9 +1,19 @@
+import os
 import cv2
 from detection import ObjectDetector
 
 def test_detect_function():
     # Path to the test image
-    test_image_path = 'object_bottleneww21.jpg'
+    test_image_path = os.path.abspath('object_bottleneww21.jpg')
+
+    # Print the current working directory and the absolute path of the test image
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Absolute path of the test image: {test_image_path}")
+
+    # Check if the file exists
+    if not os.path.exists(test_image_path):
+        print(f"Error: The file does not exist at {test_image_path}")
+        return
     
     # Load the test image
     test_image = cv2.imread(test_image_path, cv2.IMREAD_COLOR)
