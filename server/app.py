@@ -128,7 +128,8 @@ async def locate_and_align_object(object_label: str):
         return {'found': False}
 
     def align_with_object(centroid_x, frame_width, distance):
-        while (distance) > 50:  # Adjust the threshold as necessary
+        count = 0
+        while (distance) > 50 and count < 3:  # Adjust the threshold as necessary
             if centroid_x < frame_width * 0.4:
                 move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay=50')
             elif centroid_x > frame_width * 0.6:
@@ -147,7 +148,8 @@ async def locate_and_align_object(object_label: str):
                     print(f'Label result:{label_result}, Confidence:{confidence}, Distance:{distance}')
                     if confidence > config['detection_confidence']:
                         centroid_x = (x1 + x2) // 2
-
+            count+=1
+            
         return {'aligned': True}
 
     def move_towards_object(distance):
