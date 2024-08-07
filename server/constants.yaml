@@ -4,6 +4,7 @@
 num_of_aligns: 2
 max_search_attempts: 20
 max_distance: 80
-move_forward_delay: 200
+move_forward_delay: 250
 align_left_right_delay: 50
 search_left_delay: 200
+180_degree_turn_delay: 700

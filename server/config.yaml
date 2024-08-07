@@ -8,4 +8,4 @@ image_paths:
 car_address: "10.0.0.21"
 
 # Detection confidence
-detection_confidence: 0.4
+detection_confidence: 0.55

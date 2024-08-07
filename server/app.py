@@ -110,6 +110,7 @@ async def locate_and_align_object(object_label: str):
     move_forward_delay = constants['move_forward_delay']
     align_left_right_delay = constants['align_left_right_delay']
     search_left_delay = constants['search_left_delay']
+    half_circle_delay = constants['180_degree_turn_delay']
 
     def move_to_search_object():
         move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')  # Use move_forward_delay from constans
@@ -153,14 +154,25 @@ async def locate_and_align_object(object_label: str):
                            
         return {'aligned': True, 'distance': distance}
     
-    def move_towards_object(distance):
+    def move_towards_object(direction):
         #if distance <= max_distance:  # Use max_distance from constants
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={move_forward_delay}')  # Use move_forward_delay from constans
             if move_response.status_code != 200:
                 print("Moving towards item - Failed to move car forward:", move_response.status_code)         
-            move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay={align_left_right_delay}')  # Use move_forward_delay from constans
+            move_response = requests.get(f'http://{car_address}/manualDriving?dir={direction}&delay={align_left_right_delay}')  # Use move_forward_delay from constans
             if move_response.status_code != 200:
-                print("Moving towards item - Failed to move car right:", move_response.status_code)    
+                print("Moving towards item - Failed to move car right:", move_response.status_code)  
+                
+    def move_returning_object(numOfAligns):
+        requests.get(f'http://{car_address}/ledoff')
+        move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')  # Use align_left_right_delay from constants
+        if move_response.status_code != 200:
+                print("Failed to move car for a half of circle:", move_response.status_code)
+        while numOfAligns > 0:
+            numOfAligns -= 1
+            move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={move_forward_delay}')  # Use move_forward_delay from constans
+            if move_response.status_code != 200:
+                print("Moving towards item - Failed to move car forward:", move_response.status_code)              
 
     try:
         search_result = search_for_object()
@@ -174,7 +186,7 @@ async def locate_and_align_object(object_label: str):
                 align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['distance'])
                 if align_result['aligned']:
                     print(f'Align {numOfAligns}:')
-                    move_towards_object(align_result['distance'])                
+                    move_towards_object('right')                
                     # Recalculate the distance after moving
                     cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count + numOfAligns}')
                     results = detector.detect(cropped_img)
@@ -182,14 +194,14 @@ async def locate_and_align_object(object_label: str):
                         for result in results:
                             label_result, confidence, x1, y1, x2, y2, distance = result
                             print(f'Label result:{label_result}, Confidence:{confidence}, Distance:{distance}\n')
-                            if confidence > detection_confidence and label_result == object_label:
-                                search_result['frame_width'] = cropped_img.shape[1]
-                                search_result['centroid_x'] = (x1 + x2) // 2                                
-                                search_result['distance'] = distance
-
+                            #if confidence > detection_confidence and label_result == object_label:
+                            search_result['frame_width'] = cropped_img.shape[1]
+                            search_result['centroid_x'] = (x1 + x2) // 2                                
+                            search_result['distance'] = distance
+                        
         return JSONResponse(content={**search_result, **align_result})
     finally:
-        requests.get(f'http://{car_address}/ledoff')
+        move_returning_object(numOfAligns)
 
 
 # ================================
