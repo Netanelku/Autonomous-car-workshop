@@ -4,5 +4,8 @@ image_paths:
   stream_path: "images/stream"
   objects_path: "images/objects"
 
+# Car address
 car_address: "10.0.0.21"
+
+# Detection confidence
 detection_confidence: 0.4

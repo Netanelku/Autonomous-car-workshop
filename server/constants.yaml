@@ -1,0 +1,9 @@
+# constants.yaml
+
+# New constant variables
+num_of_iterations: 2
+max_search_attempts: 20
+max_distance: 100
+move_forward_delay: 300
+align_left_right_delay: 50
+search_left_delay: 200
