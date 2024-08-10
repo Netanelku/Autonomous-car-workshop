@@ -1,0 +1,7 @@
+# config.yaml
+
+image_paths:
+  stream_path: "images/stream"
+  objects_path: "images/objects"
+
+car_address: "10.0.0.11"
