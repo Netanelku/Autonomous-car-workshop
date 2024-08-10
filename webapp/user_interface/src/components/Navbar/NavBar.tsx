@@ -13,16 +13,36 @@ import {
   Avatar,
   Text,
   Tooltip,
-  useColorMode,
   useColorModeValue,
   Divider,
+  Icon,
+  Spinner,
+  useDisclosure,
 } from "@chakra-ui/react";
+// import { ,MdFiberManualRecordOutlined } from "react-icons/md";
+// import { MdFiberManualRecord } from "react-icons/md";
+
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Login from "../Login/Login";
 import logo from "../../images/logo.png";
+import IpAddressModal from "./IpAddressModal";
+import { AiOutlineReload } from "react-icons/ai";
 
-const NavBar: React.FC = () => {
+interface NavBarProps {
+  currentIpAddress: string;
+  setCurrentIpAddress: any;
+  isConnected: boolean;
+  isConnecting: boolean;
+  handleReconnect: any;
+}
+const NavBar: React.FC<NavBarProps> = ({
+  currentIpAddress,
+  setCurrentIpAddress,
+  isConnected,
+  isConnecting,
+  handleReconnect,
+}) => {
   const [name, setName] = useState<string>("");
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +50,8 @@ const NavBar: React.FC = () => {
   // const { colorMode, toggleColorMode } = useColorMode();
   const bg = useColorModeValue("#0c3567", "#1a202c");
   const color = useColorModeValue("white", "white");
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleLogout = () => {
     logout();
@@ -64,6 +86,12 @@ const NavBar: React.FC = () => {
       h={"100%"}
       opacity={"100%"}
     >
+      <IpAddressModal
+        onClose={onClose}
+        isOpen={isOpen}
+        currentIpAddress={currentIpAddress}
+        setCurrentIpAddress={setCurrentIpAddress}
+      />
       <ChakraLink
         as={ReactRouterLink}
         to="/"
@@ -86,22 +114,105 @@ const NavBar: React.FC = () => {
         )}
         <Divider orientation="vertical" h={"75%"} />
         <NavItem to="/contact" label="Contact" />
-        {isAuthenticated && (
-          <>
-            <Divider orientation="vertical" h={"75%"} />
-            <NavItem to="/Test" label="Endpoints" />
-          </>
-        )}
       </HStack>
 
       <Flex alignItems="center">
-        {/* <Button onClick={toggleColorMode} mr={4}>
-          {colorMode === "light" ? "Dark Mode" : "Light Mode"}
-        </Button> */}
         {!isAuthenticated ? (
           <Login />
         ) : (
           <Stack direction="row" spacing={5} align="center">
+            <Flex alignItems="center">
+              <Flex align="center" justify="center" mr={4}>
+                {!isConnecting && isConnected && (
+                  <Tooltip label="Change IP Address">
+                    <Flex
+                      onClick={onOpen}
+                      align="center"
+                      justify="center"
+                      p={2}
+                      borderRadius="md"
+                      color="white"
+                      cursor="pointer"
+                    >
+                      <Box
+                        mt={1}
+                        h={3}
+                        w={3}
+                        bg={"green"}
+                        borderRadius="full"
+                      />
+                      <Text
+                        // mt={3}
+                        as={"b"}
+                        fontSize="2xl"
+                        color={"green"}
+                        ml={3}
+                      >
+                        Online
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+                )}
+                {!isConnecting && !isConnected && (
+                  <Tooltip label="Click to Connect">
+                    <Flex
+                      onClick={onOpen}
+                      cursor="pointer"
+                      align="center"
+                      justify="center"
+                      p={2}
+                      borderRadius="md"
+                      color="white"
+                    >
+                      {" "}
+                      <Box mt={1} h={3} w={3} bg={"red"} borderRadius="full" />
+                      <Text
+                        // mt={3}
+                        as={"b"}
+                        fontSize="2xl"
+                        color={"red"}
+                        ml={3}
+                      >
+                        Offline
+                      </Text>
+                    </Flex>
+                  </Tooltip>
+                )}
+                {isConnecting && (
+                  <Flex
+                    align="center"
+                    justify="center"
+                    p={2}
+                    borderRadius="md"
+                    color="white"
+                  >
+                    <Spinner color="yellow.500" />
+                    <Text
+                      // mt={3}
+                      as={"b"}
+                      fontSize="2xl"
+                      color={"yellow"}
+                      ml={3}
+                    >
+                      Connecting
+                    </Text>
+                  </Flex>
+                )}
+                {!isConnected && !isConnecting && (
+                  <Tooltip label="Reconnect" hasArrow>
+                    <Flex
+                      ml={2}
+                      alignContent={"center"}
+                      justifyContent={"center"}
+                      onClick={handleReconnect}
+                      cursor={"pointer"}
+                    >
+                      <AiOutlineReload size={30} />
+                    </Flex>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
             <Tooltip label={name}>
               <Avatar name={name} />
             </Tooltip>

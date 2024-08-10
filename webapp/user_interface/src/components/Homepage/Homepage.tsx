@@ -1,18 +1,17 @@
-// components/Homepage/Homepage.tsx
 import React, { useState, useEffect } from "react";
-// import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-
 import {
   Box,
   Flex,
   Image,
   Text,
   Button,
-  Stack,
+  VStack,
   Heading,
 } from "@chakra-ui/react";
-import car from "../../images/car.png";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+// Import images after other imports
 import backgroundImage from "../../images/background1.jpg"; // Adjust the path as needed
 const images = [
   require("../../images/1.jpeg"),
@@ -20,23 +19,24 @@ const images = [
   require("../../images/3.jpeg"),
   require("../../images/4.jpeg"),
 ];
-const Homepage: React.FC = () => {
-  const text =
-    "Step into the future with our Smart Retrieval Autonomous Car. This groundbreaking vehicle is designed to swiftly retrieve items using wireless WiFi remote control and advanced mobile camera visual identification. Experience unparalleled convenience and innovation with technology that brings efficiency and ease to your daily life.";
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { isAuthenticated } = useAuth();
-  const handleDotClick = (index: number) => {
-    setCurrentImageIndex(index);
-  };
+const Homepage: React.FC = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 4000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleDotClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
   return (
     <Flex
       flex={1}
@@ -44,79 +44,76 @@ const Homepage: React.FC = () => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
-      // bg="gray.900" // Fallback background color
       direction="row"
       color="white"
     >
       <Flex
-        flexDirection="column"
         flex={2}
-        // justifyContent="center"
-
-        // mb={{ base: 10, md: 0 }}
+        flexDirection="column"
+        align="flex-start"
+        p={10}
+        bgColor="rgba(0, 0, 0, 0.2)"
+        borderRadius="md"
+        boxShadow="lg"
       >
-        <Heading
-          as="h1"
-          size={"4xl"}
-          mb={6}
-          lineHeight="short"
-          position={"relative"}
-          left={"10%"}
-          top={"10%"}
-        >
-          Smart Retrieval Car
-        </Heading>
-        <Text
-          fontSize={"3xl"}
-          mt={20}
-          w={"80%"}
-          lineHeight="tall"
-          position={"relative"}
-          left={"10%"}
-          top={"10%"}
-          flexWrap={"nowrap"}
-          mb={20}
-        >
-          {text}
-        </Text>
-        <Button
-          w={"10%"}
-          position={"relative"}
-          left={"10%"}
-          top={"10%"}
-          as="a"
-          href={isAuthenticated ? "launch" : "login"}
-          colorScheme="teal"
-          size="lg"
-          borderRadius="full"
-          px={8}
-          py={6}
-        >
-          Get Started
-        </Button>
+        <Flex flex={2} justifyContent={"center"} alignItems={"center"}>
+          <Heading size="4xl" ml={10} mb={4} textShadow="0 0 10px #3252a8">
+            Smart Retrieval Autonomous Car
+          </Heading>
+        </Flex>
+        <Flex flex={5} flexDirection={"column"} ml={10}>
+          <VStack alignItems="start" spacing={4} mb={8}>
+            <Text fontSize="2xl" lineHeight="tall">
+              Step into the future with our Smart Retrieval Autonomous Car.
+            </Text>
+            <Text fontSize="2xl" lineHeight="tall">
+              This groundbreaking vehicle is designed to swiftly retrieve items
+            </Text>
+            <Text fontSize="2xl" lineHeight="tall">
+              using wireless WiFi remote control and advanced mobile camera
+              visual identification.
+            </Text>
+            <Text fontSize="2xl" lineHeight="tall">
+              Experience unparalleled convenience and innovation with technology
+            </Text>
+            <Text fontSize="2xl" lineHeight="tall">
+              that brings efficiency and ease to your daily life.
+            </Text>
+          </VStack>
+          {isAuthenticated && (
+            <Button
+              w={"20%"}
+              as="a"
+              href="#"
+              colorScheme="teal"
+              size="lg"
+              borderRadius="full"
+              px={8}
+              py={6}
+              _hover={{ bg: "teal.600" }}
+              onClick={() => {
+                navigate("/launch");
+              }}
+            >
+              Get Started
+            </Button>
+          )}
+        </Flex>
       </Flex>
-      <Flex
-        flex="1"
-        h={"100%"}
-        position="relative"
-        justify="center"
-        align="center"
-        direction={"column"}
-      >
+      <Flex flex={1} justify="center" align="center" direction="column" p={10}>
         <Image
-          borderRadius={50}
-          boxShadow={5}
+          borderRadius="lg"
+          boxShadow="xl"
           src={images[currentImageIndex]}
-          boxSize={"50vh"}
-          mb={10}
-          // boxSize={{ base: "75vw", md: "40vw" }}
+          boxSize="40vh"
+          mb={4}
           objectFit="cover"
-          transition="all 0.5s ease"
+          transition="transform 0.5s ease-in-out"
+          _hover={{ transform: "scale(1.05)" }}
         />
-        <Flex justify="center" mt={4} px={5}>
+        <Flex justify="center" mt={4}>
           {images.map((_, index) => (
             <Box
-              px={5}
               key={index}
               w={3}
               h={3}
@@ -125,6 +122,8 @@ const Homepage: React.FC = () => {
               borderRadius="full"
               cursor="pointer"
               onClick={() => handleDotClick(index)}
+              _hover={{ bg: "teal.300" }}
+              transition="background-color 0.3s"
             />
           ))}
         </Flex>
