@@ -11,8 +11,8 @@
 #include "esp_http_server.h"
 #include "esp_camera.h"
 
-const char *ssid = "Harpaz";		   // Enter SSID WIFI Name
-const char *password = "055950174"; // Enter WIFI Password
+const char *ssid = "Parpar1";		   // Enter SSID WIFI Name
+const char *password = "Merkaz12345"; // Enter WIFI Password
 // This project was tested with the AI Thinker Model, M5STACK PSRAM Model and M5STACK WITHOUT PSRAM
 #define CAMERA_MODEL_AI_THINKER
 //#define CAMERA_MODEL_M5STACK_PSRAM

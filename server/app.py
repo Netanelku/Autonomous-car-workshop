@@ -164,7 +164,6 @@ async def locate_and_align_object(object_label: str):
                 print("Moving towards item - Failed to move car right:", move_response.status_code)  
                 
     def move_returning_object(numOfAligns):
-        requests.get(f'http://{car_address}/ledoff')
         move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')  # Use align_left_right_delay from constants
         if move_response.status_code != 200:
                 print("Failed to move car for a half of circle:", move_response.status_code)
@@ -201,7 +200,10 @@ async def locate_and_align_object(object_label: str):
                         
         return JSONResponse(content={**search_result, **align_result})
     finally:
-        move_returning_object(numOfAligns)
+        requests.get(f'http://{car_address}/ledoff') 
+        if search_result['found']:
+            move_returning_object(numOfAligns)
+               
 
 
 # ================================
