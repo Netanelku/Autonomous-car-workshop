@@ -39,10 +39,12 @@ class ObjectDetector:
                     continue  # Skip this detection if width is greater than height
 
                 # Calculate the center of the object
-                center_object_x, center_object_y = (x1 + x2) // 2, (y1 + y2) // 2
+                center_object_x = (x1 + x2) // 2
+                center_object_y = y2  # The bottom center of the object
 
-                # Calculate the length of the line
-                line_length = math.sqrt((center_frame_x - center_object_x) ** 2 + (center_frame_y - center_object_y) ** 2)
+                # Calculate the length of the line from the bottom center of the object to the bottom of the image
+                bottom_center_x, bottom_center_y = center_object_x, height
+                line_length = math.sqrt((center_object_x - bottom_center_x) ** 2 + (center_object_y - bottom_center_y) ** 2)
 
                 return_value.append((label, confidence, x1, y1, x2, y2, line_length))
 
@@ -53,12 +55,12 @@ class ObjectDetector:
                 # Draw the center point of the object
                 cv2.circle(image, (center_object_x, center_object_y), 5, (0, 0, 255), -1)
 
-                # Draw a line between the center of the frame and the center of the object
-                cv2.line(image, (center_frame_x, center_frame_y), (center_object_x, center_object_y), (255, 255, 0), 2)
+                # Draw a line from the bottom center of the object to the bottom of the image
+                cv2.line(image, (center_object_x, center_object_y), (bottom_center_x, bottom_center_y), (0, 255, 255), 2)
 
                 # Optionally, draw the line length on the image
-                midpoint_x = (center_frame_x + center_object_x) // 2
-                midpoint_y = (center_frame_y + center_object_y) // 2
+                midpoint_x = (center_object_x + bottom_center_x) // 2
+                midpoint_y = (center_object_y + bottom_center_y) // 2
                 cv2.putText(image, f'{line_length:.2f}', (midpoint_x, midpoint_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         # Ensure the 'results' directory exists

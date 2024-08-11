@@ -4,7 +4,9 @@
 num_of_aligns: 3
 max_search_attempts: 20
 max_distance: 80
+min_distance: 30
+alignment_threshold: 0.05 # 5% of frame width for alignment
 move_forward_delay: 600
-align_left_right_delay: 50
+align_left_right_delay: 100
 search_left_delay: 150
 180_degree_turn_delay: 700
