@@ -12,7 +12,7 @@ class ObjectDetector:
     def detect(self, image):
         results = self.model(image)
         self.counter += 1
-        return_value = []
+        return_value = None  # Initialize as None to store the closest object
 
         # Get image dimensions
         height, width, _ = image.shape
@@ -21,6 +21,8 @@ class ObjectDetector:
 
         # Draw the center point of the frame
         cv2.circle(image, (center_frame_x, center_frame_y), 5, (255, 0, 0), -1)
+
+        min_line_length = float('inf')  # Initialize to infinity for comparison
 
         for result in results:
             boxes = result.boxes
@@ -46,22 +48,31 @@ class ObjectDetector:
                 bottom_center_x, bottom_center_y = center_object_x, height
                 line_length = math.sqrt((center_object_x - bottom_center_x) ** 2 + (center_object_y - bottom_center_y) ** 2)
 
-                return_value.append((label, confidence, x1, y1, x2, y2, line_length))
+                # Keep track of the object with the smallest line_length
+                if line_length < min_line_length:
+                    min_line_length = line_length
+                    return_value = (label, confidence, x1, y1, x2, y2, line_length)
 
-                # Draw the bounding box and label on the image
-                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # Draw the closest object on the image
+        if return_value:
+            label, confidence, x1, y1, x2, y2, line_length = return_value
+            
+            # Draw the bounding box and label on the image
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                # Draw the center point of the object
-                cv2.circle(image, (center_object_x, center_object_y), 5, (0, 0, 255), -1)
+            # Draw the center point of the object
+            center_object_x = (x1 + x2) // 2
+            center_object_y = y2
+            cv2.circle(image, (center_object_x, center_object_y), 5, (0, 0, 255), -1)
 
-                # Draw a line from the bottom center of the object to the bottom of the image
-                cv2.line(image, (center_object_x, center_object_y), (bottom_center_x, bottom_center_y), (0, 255, 255), 2)
+            # Draw a line from the bottom center of the object to the bottom of the image
+            cv2.line(image, (center_object_x, center_object_y), (center_object_x, height), (0, 255, 255), 2)
 
-                # Optionally, draw the line length on the image
-                midpoint_x = (center_object_x + bottom_center_x) // 2
-                midpoint_y = (center_object_y + bottom_center_y) // 2
-                cv2.putText(image, f'{line_length:.2f}', (midpoint_x, midpoint_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            # Optionally, draw the line length on the image
+            midpoint_x = (center_object_x + bottom_center_x) // 2
+            midpoint_y = (center_object_y + bottom_center_y) // 2
+            cv2.putText(image, f'{line_length:.2f}', (midpoint_x, midpoint_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         # Ensure the 'results' directory exists
         results_dir = 'images/results'
@@ -76,4 +87,5 @@ class ObjectDetector:
         else:
             print(f'Failed to save image to {result_image_path}')
         
-        return return_value
+        # Return the closest detected object
+        return [return_value] if return_value else []
