@@ -22,18 +22,78 @@ const App: React.FC = () => {
   const checkAttemptsRef = useRef(0);
   const intervalIdRef = useRef<number | undefined>(undefined);
 
+  const fetchIpAddress = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8080/car/currentAddress");
+      if (response.ok) {
+        const data = await response.json();
+        return data; // Return the data from the response
+      } else {
+        console.error("Failed to fetch IP address:", response.statusText);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching IP address:", error);
+      return null;
+    }
+  };
+
+  // useEffect to fetch IP address on component mount
   useEffect(() => {
-    localStorage.setItem("currentIpAddress", currentIpAddress);
+    console.log("App is mounted.");
+    const getIpAddress = async () => {
+      const data = await fetchIpAddress(); // Wait for the data to be fetched
+      if (data && data.current_ip) {
+        setCurrentIpAddress(data.current_ip); // Update the state with the fetched IP
+      }
+    };
+    getIpAddress();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
-    setIsConnected(false);
-    checkAttemptsRef.current = 0;
+  // useEffect to handle connection logic based on the current IP address
+  useEffect(() => {
+    const handleConnectionCheck = async () => {
+      setIsConnected(false);
 
-    startConnectionCheck();
+      if (currentIpAddress !== "") {
+        checkAttemptsRef.current = 0;
+        const response = await fetchIpAddress(); // Fetch the IP address again
+        console.log("aa");
+        if (response && response.current_ip !== currentIpAddress) {
+          console.log("bb");
+          await updateIpAddress(currentIpAddress);
+        }
+
+        startConnectionCheck();
+      }
+    };
+
+    handleConnectionCheck();
 
     return () => {
       stopConnectionCheck();
     };
-  }, [currentIpAddress]);
+  }, [currentIpAddress]); // Dependency array with currentIpAddress
+  const updateIpAddress = async (newIp: any) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8080/car/updateAddress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ new_ip: newIp }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("IP address updated successfully:", data.new_ip);
+      } else {
+        console.error("Failed to update IP address:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating IP address:", error);
+    }
+  };
 
   const startConnectionCheck = () => {
     stopConnectionCheck(); // Clear any existing interval
@@ -49,14 +109,26 @@ const App: React.FC = () => {
     }
   };
 
-  const checkConnection = () => {
+  const checkConnection = async () => {
     console.log("Checking connection...");
+    let connected = false;
 
-    const connected = Math.random() >= 0.5; // Simulate connection check
+    try {
+      const healthResponse = await fetch("http://127.0.0.1:8080/health");
+      if (healthResponse.ok) {
+        const healthData = await healthResponse.json();
+        if (healthData.status === "ok") {
+          connected = true;
+          setIsConnecting(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking connection:", error);
+    }
+
     setIsConnecting(true);
     setIsConnected(connected);
-    setIsConnecting(!connected);
-    console.log("IsConnected", connected, "isConnecting", !connected);
+    console.log("IsConnected:", connected, "IsConnecting:", false);
 
     if (!connected) {
       checkAttemptsRef.current += 1;

@@ -179,24 +179,26 @@ const NavBar: React.FC<NavBarProps> = ({
                   </Tooltip>
                 )}
                 {isConnecting && (
-                  <Flex
-                    align="center"
-                    justify="center"
-                    p={2}
-                    borderRadius="md"
-                    color="white"
-                  >
-                    <Spinner color="yellow.500" />
-                    <Text
-                      // mt={3}
-                      as={"b"}
-                      fontSize="2xl"
-                      color={"yellow"}
-                      ml={3}
+                  <Tooltip label={`connecting to ${currentIpAddress}`}>
+                    <Flex
+                      align="center"
+                      justify="center"
+                      p={2}
+                      borderRadius="md"
+                      color="white"
                     >
-                      Connecting
-                    </Text>
-                  </Flex>
+                      <Spinner color="yellow.500" />
+                      <Text
+                        // mt={3}
+                        as={"b"}
+                        fontSize="2xl"
+                        color={"yellow"}
+                        ml={3}
+                      >
+                        Connecting
+                      </Text>
+                    </Flex>
+                  </Tooltip>
                 )}
                 {!isConnected && !isConnecting && (
                   <Tooltip label="Reconnect" hasArrow>

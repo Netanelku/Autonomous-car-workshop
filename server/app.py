@@ -34,6 +34,45 @@ def car_motion_start():
 def car_motion_stop():
     pass
 
+@app.route('/car/updateRetryAttempts', methods=['POST'])
+def update_retry_attempts():
+    new_attempts = request.json.get('retryAttempts')
+    if new_attempts is None:
+        return jsonify({'error': 'No retry attempts provided'}), 400
+
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+    config['retry_attempts'] = new_attempts
+
+    with open('config.yaml', 'w') as file:
+        yaml.safe_dump(config, file)
+
+    return jsonify({'message': 'Retry attempts updated successfully', 'retryAttempts': new_attempts})
+
+
+@app.route('/car/currentAddress', methods=['GET'])
+def car_currentAddress():
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+    car_address = config['car_address']
+    return jsonify({'current_ip': car_address})
+
+@app.route('/car/updateAddress', methods=['POST'])
+def car_updateAddress():
+    new_ip = request.json.get('new_ip')
+    if not new_ip:
+        return jsonify({'error': 'No IP address provided'}), 400
+
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+    config['car_address'] = new_ip
+
+    with open('config.yaml', 'w') as file:
+        yaml.safe_dump(config, file)
+
+    return jsonify({'message': 'IP address updated successfully', 'new_ip': new_ip})
 # ================================
 # Car Endpoints
 # ================================
@@ -52,15 +91,6 @@ def health_check():
     except requests.exceptions.RequestException as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
     
-@app.route('/camera/detection_comp', methods=['GET'])
-def detect_object():
-    localizer = ObjectDetector()
-    query_image_path = 'check.jpg'
-    query_image = cv2.imread(query_image_path, cv2.IMREAD_GRAYSCALE)
-    if query_image is None:
-        return f"Error reading query image: {query_image_path}", 400
-    result = localizer.find_and_localize_object(query_image)
-    return json.dumps(result)
 
 @app.route('/camera/save_object', methods=['GET'])
 def save_object():

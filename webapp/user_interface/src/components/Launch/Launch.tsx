@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Text,
@@ -54,7 +54,32 @@ const Launch: React.FC = () => {
     console.log("LED Status:", ledStatus);
     setCurrentStep(3); // Move to the next step
   };
+  const updateRetryAttemptsOnServer = async (attempts: number) => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8080/car/updateRetryAttempts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ retryAttempts: attempts }),
+        }
+      );
 
+      if (!response.ok) {
+        console.error("Failed to update retry attempts:", response.statusText);
+      } else {
+        console.log("Retry attempts updated successfully on the server.");
+      }
+    } catch (error) {
+      console.error("Error updating retry attempts:", error);
+    }
+  };
+
+  useEffect(() => {
+    updateRetryAttemptsOnServer(retryAttempts);
+  }, [retryAttempts]);
   return (
     <Flex
       flex={1}
