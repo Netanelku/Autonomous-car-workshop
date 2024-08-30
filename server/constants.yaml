@@ -1,7 +1,7 @@
 # constants.yaml
 
 # New constant variables
-num_of_aligns: 3
+num_of_aligns: 2
 max_search_attempts: 20
 max_distance: 80
 min_distance: 25
@@ -11,3 +11,6 @@ move_forward_delay: 600
 align_left_right_delay: 100
 search_left_delay: 150
 180_degree_turn_delay: 700
+
+# Object Label for the starting point
+starting_point_label: "bottle"

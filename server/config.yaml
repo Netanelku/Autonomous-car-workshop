@@ -1,11 +1,11 @@
-car_address: 12.12.12.12
+# config.yaml
+
 image_paths:
   stream_path: "images/stream"
   objects_path: "images/objects"
 
 # Car address
-car_address: "10.0.0.23"
+car_address: "10.0.0.22"
 
 # Detection confidence
 detection_confidence: 0.3
-retry_attempts: 20
