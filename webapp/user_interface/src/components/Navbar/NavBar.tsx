@@ -19,8 +19,6 @@ import {
   Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
-// import { ,MdFiberManualRecordOutlined } from "react-icons/md";
-// import { MdFiberManualRecord } from "react-icons/md";
 
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -28,28 +26,22 @@ import Login from "../Login/Login";
 import logo from "../../images/logo.png";
 import IpAddressModal from "./IpAddressModal";
 import { AiOutlineReload } from "react-icons/ai";
+import { useConnection } from "../context/ConnectionContext";
 
-interface NavBarProps {
-  currentIpAddress: string;
-  setCurrentIpAddress: any;
-  isConnected: boolean;
-  isConnecting: boolean;
-  handleReconnect: any;
-}
-const NavBar: React.FC<NavBarProps> = ({
-  currentIpAddress,
-  setCurrentIpAddress,
-  isConnected,
-  isConnecting,
-  handleReconnect,
-}) => {
+const NavBar: React.FC = () => {
   const [name, setName] = useState<string>("");
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
-  // const { colorMode, toggleColorMode } = useColorMode();
   const bg = useColorModeValue("#0c3567", "#1a202c");
   const color = useColorModeValue("white", "white");
+  const {
+    currentIpAddress,
+    isConnected,
+    isConnecting,
+    handleReconnect,
+    setCurrentIpAddress,
+  } = useConnection();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -90,7 +82,7 @@ const NavBar: React.FC<NavBarProps> = ({
         onClose={onClose}
         isOpen={isOpen}
         currentIpAddress={currentIpAddress}
-        setCurrentIpAddress={setCurrentIpAddress}
+        setCurrentIpAddress={setCurrentIpAddress} // Pass the setCurrentIpAddress function here
       />
       <ChakraLink
         as={ReactRouterLink}
@@ -141,13 +133,7 @@ const NavBar: React.FC<NavBarProps> = ({
                         bg={"green"}
                         borderRadius="full"
                       />
-                      <Text
-                        // mt={3}
-                        as={"b"}
-                        fontSize="2xl"
-                        color={"green"}
-                        ml={3}
-                      >
+                      <Text as={"b"} fontSize="2xl" color={"green"} ml={3}>
                         Online
                       </Text>
                     </Flex>
@@ -164,39 +150,28 @@ const NavBar: React.FC<NavBarProps> = ({
                       borderRadius="md"
                       color="white"
                     >
-                      {" "}
                       <Box mt={1} h={3} w={3} bg={"red"} borderRadius="full" />
-                      <Text
-                        // mt={3}
-                        as={"b"}
-                        fontSize="2xl"
-                        color={"red"}
-                        ml={3}
-                      >
+                      <Text as={"b"} fontSize="2xl" color={"red"} ml={3}>
                         Offline
                       </Text>
                     </Flex>
                   </Tooltip>
                 )}
                 {isConnecting && (
-                  <Flex
-                    align="center"
-                    justify="center"
-                    p={2}
-                    borderRadius="md"
-                    color="white"
-                  >
-                    <Spinner color="yellow.500" />
-                    <Text
-                      // mt={3}
-                      as={"b"}
-                      fontSize="2xl"
-                      color={"yellow"}
-                      ml={3}
+                  <Tooltip label={`connecting to ${currentIpAddress}`}>
+                    <Flex
+                      align="center"
+                      justify="center"
+                      p={2}
+                      borderRadius="md"
+                      color="white"
                     >
-                      Connecting
-                    </Text>
-                  </Flex>
+                      <Spinner color="yellow.500" />
+                      <Text as={"b"} fontSize="2xl" color={"yellow"} ml={3}>
+                        Connecting
+                      </Text>
+                    </Flex>
+                  </Tooltip>
                 )}
                 {!isConnected && !isConnecting && (
                   <Tooltip label="Reconnect" hasArrow>
@@ -229,7 +204,6 @@ const NavBar: React.FC<NavBarProps> = ({
 const NavItem: React.FC<{ to: string; label: string }> = ({ to, label }) => (
   <ChakraLink as={ReactRouterLink} to={to} _hover={{ textDecoration: "none" }}>
     <Box
-      // bg="#0c3567"
       w="full"
       h={10}
       display="flex"
@@ -239,11 +213,6 @@ const NavItem: React.FC<{ to: string; label: string }> = ({ to, label }) => (
       fontSize={"xl"}
       textColor={"#a3b4c8"}
       fontFamily="sans-serif"
-      // borderColor="white"
-      // borderWidth={1}
-      // _hover={{
-      //   boxShadow: "0 0 10px 2px rgba(255, 255, 255, 0.8)",
-      // }}
       color="white"
     >
       {label}

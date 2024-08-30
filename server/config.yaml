@@ -1,7 +1,5 @@
-# config.yaml
-
+car_address: 12.12.12.12
 image_paths:
-  stream_path: "images/stream"
-  objects_path: "images/objects"
-
-car_address: "10.0.0.11"
+  objects_path: images/objects
+  stream_path: images/stream
+retry_attempts: 20

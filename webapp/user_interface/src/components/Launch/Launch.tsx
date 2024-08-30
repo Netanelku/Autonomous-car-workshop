@@ -1,8 +1,170 @@
-import { Flex } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  Flex,
+  Text,
+  Box,
+  Stack,
+  Card,
+  CardHeader,
+  Heading,
+  CardBody,
+  Button,
+  Image,
+  Divider,
+  Input,
+  Textarea,
+  Switch,
+  FormControl,
+  FormLabel,
+  Slider,
+  Fade,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  VStack,
+  HStack,
+  Slide,
+  Tooltip,
+  useToast,
+} from "@chakra-ui/react";
+import { Progress } from "@chakra-ui/react";
+import { useAuth } from "../context/AuthContext";
 import backgroundImage from "../../images/background.jpg"; // Adjust the path as needed
+import CustomSteps from "./CustomSteps";
+import tasks from "./tasks.json"; // Importing the JSON file
+import { useConnection } from "../context/ConnectionContext";
 
 const Launch: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [customTaskName, setCustomTaskName] = useState("");
+  const [customTaskInstructions, setCustomTaskInstructions] = useState("");
+  const [liveAudioStatus, setLiveAudioStatus] = useState(false);
+  const [liveNotifications, setLiveNotifications] = useState(true);
+  const [retryAttempts, setRetryAttempts] = useState(20);
+  const [ledStatus, setLedStatus] = useState(true);
+  const [showSceneDescription, setShowSceneDescription] = useState(true);
+  const [isStep3Visible, setIsStep3Visible] = useState(false);
+  const [status, setStatus] = useState<string>("Idle");
+  const toast = useToast(); // Initialize useToast
+  const { isAuthenticated, logout } = useAuth();
+  const { isConnected, isConnecting } = useConnection();
+  const [percentage, setPercentage] = useState(0);
+  const [textIndex, setTextIndex] = useState(0);
+
+  const promotionalTexts = [
+    "Revolutionize retrieval with smart automation",
+    "Boost efficiency with our autonomous car",
+    "Get fast, reliable item retrieval now",
+    "Experience seamless automation today",
+    "Transform retrieval with cutting-edge tech",
+    "Effortless item retrieval at your fingertips",
+    "Innovative tech for faster retrieval",
+    "Smart and efficient autonomous retrieval",
+    "Upgrade to our advanced retrieval system",
+    "Lead with the latest in smart technology",
+  ];
+  useEffect(() => {
+    const percentageInterval = setInterval(() => {
+      setPercentage((prev) =>
+        prev < 100 ? prev + Math.floor(Math.random() * 10 + 1) : 1
+      );
+    }, 2000);
+
+    // Change the promotional text every 3 seconds
+    const textInterval = setInterval(() => {
+      setTextIndex((prev) => (prev + 1) % promotionalTexts.length);
+    }, 3000);
+
+    return () => {
+      clearInterval(percentageInterval);
+      clearInterval(textInterval);
+    };
+  }, [promotionalTexts.length]);
+  useEffect(() => {
+    if (currentStep === 3) {
+      setIsStep3Visible(true);
+    } else {
+      setIsStep3Visible(false);
+    }
+  }, [currentStep]);
+
+  const handleTaskSelection = (taskId: number) => {
+    const task = tasks.find((task) => task.id === taskId);
+    setSelectedTask(task);
+    setCustomTaskName(task?.title || "");
+    setCustomTaskInstructions(task?.description || "");
+  };
+
+  const handleCustomizeTask = () => {
+    console.log("Customized Task Name:", customTaskName);
+    console.log("Customized Task Instructions:", customTaskInstructions);
+    console.log("Live Audio Status:", liveAudioStatus);
+    console.log("Live Notifications:", liveNotifications);
+    console.log("Retry Attempts:", retryAttempts);
+    console.log("LED Status:", ledStatus);
+    setCurrentStep(3); // Move to the next step
+    // Randomly choose a status
+    const statuses = ["Launching", "In Progress", "Completed"];
+    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    setStatus(randomStatus);
+    if (liveNotifications) {
+      toast({
+        title: "Task Updated",
+        description: `The task status has been updated to ${randomStatus}.`,
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+  const updateRetryAttemptsOnServer = async (attempts: number) => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8080/car/updateRetryAttempts",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ retryAttempts: attempts }),
+        }
+      );
+
+      if (!response.ok) {
+        console.error("Failed to update retry attempts:", response.statusText);
+      } else {
+        console.log("Retry attempts updated successfully on the server.");
+      }
+    } catch (error) {
+      console.error("Error updating retry attempts:", error);
+    }
+  };
+  // const boxShadowValue = `${percentage * 0.25}px ${percentage * 0.5}px ${
+  //   percentage * 2.5
+  // }px white`;
+  useEffect(() => {
+    updateRetryAttemptsOnServer(retryAttempts);
+  }, [retryAttempts]);
+  useEffect(() => {
+    // Announce status change
+    if (liveAudioStatus && window.speechSynthesis) {
+      const utterance = new SpeechSynthesisUtterance(
+        `The status is now ${status}.`
+      );
+      window.speechSynthesis.speak(utterance);
+    }
+    // Notify if live notifications are enabled
+    if (liveNotifications) {
+      toast({
+        title: "Status Announced",
+        description: `The status has been announced as ${status}.`,
+        status: "info",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [status]);
   return (
     <Flex
       flex={1}
@@ -10,10 +172,778 @@ const Launch: React.FC = () => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
-      // bg="gray.900" // Fallback background color
-      direction="row"
+      direction="column"
       color="white"
-    ></Flex>
+    >
+      <Flex flex={1} justifyContent={"center"}>
+        {currentStep === 1 && (
+          <Flex flexDirection={"row"} w={"50vw"} m={10}>
+            <Flex
+              flex={3}
+              borderRadius="20px"
+              borderWidth={5}
+              borderColor="#001130"
+              bgColor={"#031636"}
+              flexDirection={"column"}
+              sx={{
+                boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)",
+              }}
+            >
+              <Box justifyContent={"center"} m={4} p={4} w={"100%"}>
+                <Text fontSize={"2xl"} color={"white"} alignContent={"center"}>
+                  Please Select a Task...
+                </Text>
+              </Box>
+              <Flex flex={1} bg={"#011A3C"} p={4} borderRadius="20px">
+                <Stack spacing="4" w={"100%"}>
+                  {tasks.map((task) => (
+                    <Card
+                      key={task.id}
+                      size={"md"}
+                      w={"100%"}
+                      bg={"#021D44"}
+                      color="white"
+                      borderColor="gray.600"
+                      borderWidth={1}
+                      _hover={{ bg: "#032656", cursor: "pointer" }}
+                      onClick={() => handleTaskSelection(task.id)}
+                    >
+                      <CardHeader>
+                        <Heading size="md">{task.title}</Heading>
+                      </CardHeader>
+                      <CardBody>
+                        <Text>{task.description}</Text>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </Stack>
+              </Flex>
+            </Flex>
+            <Flex flex={1}></Flex>
+            <Flex
+              borderRadius="20px"
+              borderWidth={5}
+              borderColor="#001130"
+              bgColor={"#00224D"}
+              opacity={selectedTask ? 1 : 0.1}
+              sx={{
+                boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)",
+              }}
+              flex={5}
+              justifyContent={selectedTask ? "inherit" : "center"}
+              alignItems={selectedTask ? "inherit" : "center"}
+              flexDirection={"column"}
+            >
+              {selectedTask && (
+                <>
+                  <Flex
+                    flex={1}
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                  >
+                    <Image
+                      w={"75%"}
+                      h={"90%"}
+                      bg={"white"}
+                      src={selectedTask.image_path}
+                      alt={selectedTask.title}
+                      borderRadius="10px"
+                      mb={4}
+                    />
+                  </Flex>
+                  <Divider size={"4xl"} colorScheme={"blackAlpha"} />
+                  <Flex
+                    h={"10%"}
+                    w={"100%"}
+                    pr={3}
+                    pt={3}
+                    justifyContent={"flex-end"}
+                  >
+                    <Button
+                      colorScheme="teal"
+                      size="md"
+                      onClick={() => setCurrentStep(2)}
+                    >
+                      Launch Task
+                    </Button>
+                  </Flex>
+                </>
+              )}
+            </Flex>
+          </Flex>
+        )}
+
+        {currentStep === 2 && (
+          <Flex flexDirection={"row"} w={"50vw"} m={10}>
+            {/* Left Side (Task Details) */}
+            <Flex
+              borderRadius="20px"
+              borderWidth={5}
+              borderColor="#001130"
+              bgColor={"#00224D"}
+              sx={{
+                boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)",
+              }}
+              flex={3}
+              justifyContent={"center"}
+              alignItems={"center"}
+              flexDirection={"column"}
+              bg={"white"}
+              opacity={0.1}
+            >
+              {selectedTask && (
+                <>
+                  <Flex
+                    flex={1}
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                  >
+                    <Image
+                      w={"100%"}
+                      h={"50%"}
+                      bg={"white"}
+                      src={selectedTask.image_path}
+                      alt={selectedTask.title}
+                      borderRadius="10px"
+                      mb={4}
+                    />
+                  </Flex>
+                  <Divider
+                    borderColor={"blackAlpha.500"}
+                    borderWidth={2}
+                    my={4}
+                  />
+                </>
+              )}
+            </Flex>
+
+            <Flex flex={1}></Flex>
+
+            {/* Right Side (Customization Panel) */}
+            <Flex
+              flex={5}
+              borderRadius="20px"
+              borderWidth={5}
+              borderColor="#001130"
+              bgColor={"#031636"}
+              flexDirection={"column"}
+              sx={{
+                boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)",
+              }}
+            >
+              <Flex h={"10%"} justifyContent={"center"} alignItems={"center"}>
+                <Heading>Customize Task</Heading>
+              </Flex>
+
+              <Flex flex={1} flexDirection={"column"} m={5}>
+                <VStack spacing={5} justifyItems={"flex-start"}>
+                  <Flex w="100%" align="center">
+                    <Text fontSize={"xl"} flex="1" mr={2}>
+                      Task Title:
+                    </Text>
+                    <Input
+                      flex="5"
+                      disabled
+                      placeholder="Task Name"
+                      value={customTaskName}
+                      onChange={(e) => setCustomTaskName(e.target.value)}
+                      mb={4}
+                    />
+                  </Flex>
+                  <Flex w="100%" align="center">
+                    <Text fontSize={"xl"} flex="2" mr={2}>
+                      Task Instructions:
+                    </Text>
+                    <Textarea
+                      flex="5" // Fixed width
+                      h="10%" // or set a fixed height
+                      placeholder="Task Instructions"
+                      value={customTaskInstructions}
+                      onChange={(e) =>
+                        setCustomTaskInstructions(e.target.value)
+                      }
+                      mb={4}
+                      disabled
+                    />{" "}
+                  </Flex>
+                </VStack>
+
+                {/* Live Audio Status, Live Notifications, LED Toggle */}
+                <HStack mt={10} alignItems="center" mb={4} spacing={10}>
+                  <Flex>
+                    <Text mr={4} fontSize={"lg"}>
+                      Live Audio Status
+                    </Text>
+                    <Switch
+                      isChecked={liveAudioStatus}
+                      onChange={() => setLiveAudioStatus(!liveAudioStatus)}
+                    />
+                  </Flex>
+                  <Flex>
+                    <Text mr={4} fontSize={"lg"}>
+                      Live Notifications
+                    </Text>
+                    <Switch
+                      isChecked={liveNotifications}
+                      onChange={() => setLiveNotifications(!liveNotifications)}
+                    />
+                  </Flex>
+                  <Tooltip label="Currently not available" placement="bottom">
+                    <Flex>
+                      <Text mr={4} fontSize={"lg"}>
+                        LED Status
+                      </Text>
+
+                      <Switch
+                        isChecked={ledStatus}
+                        onChange={() => setLedStatus(!ledStatus)}
+                        isDisabled={true} // Disabled by default
+                        colorScheme="red"
+                      />
+                    </Flex>
+                  </Tooltip>
+                </HStack>
+
+                {/* Retry Attempts */}
+                <Flex alignItems="center" mt={4}>
+                  <Text mr={4} w={"35%"} fontSize={"lg"}>
+                    Retry Attempts: {retryAttempts}
+                  </Text>
+                  <Slider
+                    min={20}
+                    max={30}
+                    value={retryAttempts}
+                    onChange={(value) => setRetryAttempts(value)}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                  </Slider>
+                </Flex>
+
+                {/* Scene Description Toggle */}
+                <HStack mt={8} alignItems="center">
+                  <Text mr={4} fontSize={"lg"}>
+                    Display Scene Description
+                  </Text>
+                  <Switch
+                    isChecked={showSceneDescription}
+                    onChange={() =>
+                      setShowSceneDescription(!showSceneDescription)
+                    }
+                  />
+                </HStack>
+
+                {/* Conditional Rendering of Scene Description */}
+                {showSceneDescription && (
+                  <Text mt={3} color={"white"} fontSize={"lg"}>
+                    {selectedTask?.sceneDescription ||
+                      "No scene description available."}
+                  </Text>
+                )}
+              </Flex>
+
+              <Divider borderColor={"blackAlpha.500"} borderWidth={2} my={4} />
+              <Flex
+                h={"10%"}
+                w={"100%"}
+                pr={3}
+                pt={3}
+                justifyContent={"flex-end"}
+              >
+                <Button
+                  colorScheme="blue"
+                  size="md"
+                  mr={3}
+                  onClick={() => setCurrentStep(currentStep - 1)}
+                >
+                  Back
+                </Button>
+                <Button
+                  colorScheme="teal"
+                  size="md"
+                  onClick={handleCustomizeTask}
+                >
+                  Save & Continue
+                </Button>
+              </Flex>
+            </Flex>
+          </Flex>
+        )}
+        {currentStep === 3 && (
+          <Flex
+            justifyContent={"space-between"}
+            flexDirection="row"
+            flex={1}
+            m={10}
+            p={5}
+          >
+            <Flex
+              borderRadius="20px"
+              borderWidth={5}
+              borderColor="#001130"
+              bgColor="#00224D"
+              sx={{ boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)" }}
+              justifyContent="space-between"
+              alignItems="center"
+              flexDirection="column"
+              h="100%"
+              w={"20%"}
+              p={2}
+            >
+              <Flex
+                alignContent={"center"}
+                justifyContent={"center"}
+                h={70}
+                pt={5}
+                textAlign={"center"}
+                w={"100%"}
+              >
+                <Text fontSize="4xl" mb={4} fontWeight="bold">
+                  Launch Status
+                </Text>
+              </Flex>
+              <Divider borderColor="gray.500" w="90%" my={4} />
+              <VStack
+                w={"100%"}
+                flexDirection="column"
+                alignItems="flex-start"
+                p={6}
+                flex={1}
+                spacing={6}
+              >
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Task:</strong> {selectedTask?.title}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Custom Name:</strong> {customTaskName}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Live Audio:</strong>{" "}
+                    {liveAudioStatus ? "On" : "Off"}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Live Notifications:</strong>{" "}
+                    {liveNotifications ? "Enabled" : "Disabled"}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Retry Attempts:</strong> {retryAttempts}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>LED:</strong> {ledStatus ? "On" : "Off"}
+                  </Text>
+                </Flex>
+
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Scene Description:</strong>{" "}
+                    {showSceneDescription ? "Visible" : "Hidden"}
+                  </Text>
+                </Flex>
+                <Flex flexDirection={"row"} alignItems={"center"}>
+                  <Box
+                    bg={"green.300"}
+                    w={3}
+                    h={3}
+                    borderRadius={"full"}
+                    mr={5}
+                    boxShadow="0 0 10px green, 0 0 20px green"
+                    animation="glow 1.5s infinite alternate"
+                    sx={{
+                      "@keyframes glow": {
+                        "0%": {
+                          boxShadow: "0 0 5px green, 0 0 10px green",
+                        },
+                        "100%": {
+                          boxShadow: "0 0 15px green, 0 0 30px green",
+                        },
+                      },
+                    }}
+                  ></Box>
+                  <Text fontSize="md" mt={2}>
+                    <strong>Task Status:</strong> {status}
+                  </Text>
+                </Flex>
+              </VStack>
+              <Divider borderColor="gray.500" w="90%" my={4} />
+              <Flex
+                w={"100%"}
+                h={20}
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
+                <Button
+                  colorScheme="teal"
+                  size="lg"
+                  onClick={() => setCurrentStep(1)}
+                >
+                  Go Back to Task Selection
+                </Button>
+              </Flex>
+            </Flex>
+            <Flex
+              justifyContent="center"
+              // alignItems="center"
+              flexDirection={"column"}
+              w={"50%"}
+              h={"100%"}
+            >
+              {!isConnected && !isConnecting && false ? (
+                <Flex
+                  w="100%"
+                  h="20%"
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="center"
+                  p={4}
+                  bg="rgba(0, 0, 0, 0.7)" // Semi-transparent background
+                  borderRadius="md" // Rounded corners
+                  boxShadow="lg" // Shadow for depth
+                >
+                  <Text
+                    fontSize="xl"
+                    fontWeight="bold"
+                    color="white" // High contrast for better visibility
+                    mb={4}
+                    textAlign="center"
+                  >
+                    Connection lost. Please reconnect.
+                  </Text>
+
+                  <Progress
+                    size="lg"
+                    colorScheme="teal" // Vibrant color scheme
+                    isIndeterminate
+                    width="80%" // Adjusted width for alignment
+                    borderRadius="md" // Rounded corners for the progress bar
+                    boxShadow="md" // Shadow for depth on the progress bar
+                  />
+                </Flex>
+              ) : (
+                <Flex
+                  w="100%"
+                  h="100%"
+                  flexDirection="column"
+                  p={4}
+                  flexDir={"column"}
+                >
+                  <Flex
+                    flex={8}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                  >
+                    <Image
+                      src={"car.png"}
+                      w={"40vw"}
+                      h={"55vh"}
+                      sx={{
+                        opacity: percentage / 100,
+                        transition: "opacity 3s ease",
+                      }}
+                    />
+                  </Flex>
+
+                  <Flex
+                    flex={2}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    flexDir={"column"}
+                  >
+                    <Flex
+                      w={"100%"}
+                      flexDir={"row"}
+                      justifyContent={"space-between"}
+                    >
+                      <Box></Box>
+                      <Text
+                        fontSize="2xl"
+                        fontWeight="bold"
+                        textAlign="center"
+                        transition="opacity 3s ease"
+                      >
+                        {promotionalTexts[textIndex]}
+                      </Text>{" "}
+                      <Text
+                        fontSize="xl"
+                        fontWeight="bold"
+                        color="white" // High contrast for better visibility
+                        mb={4}
+                        textAlign="center"
+                      >
+                        {percentage}%
+                      </Text>
+                    </Flex>
+
+                    <Progress
+                      size="lg"
+                      value={percentage}
+                      colorScheme="teal" // Vibrant color scheme
+                      width="100%" // Adjusted width for alignment
+                      borderRadius="md" // Rounded corners for the progress bar
+                      boxShadow="md" // Shadow for depth on the progress bar
+                    />
+                  </Flex>
+                </Flex>
+              )}
+            </Flex>
+            <Flex
+              justifyContent="space-between"
+              flexDirection={"column"}
+              w={"15%"}
+              h={"100%"}
+            >
+              <Flex
+                borderRadius="20px"
+                borderWidth={5}
+                borderColor="#001130"
+                bgColor="#00224D"
+                sx={{ boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)" }}
+                justifyContent="center"
+                alignItems="center"
+                flexDirection={"column"}
+                w={"100%"}
+                h={"30%"}
+                bg={"white"}
+                opacity={selectedTask.id == 2 ? 0.8 : 0.1}
+              >
+                <Image
+                  w={"60%"}
+                  h={"80%"}
+                  bg={"white"}
+                  src={"bottle.jpg"}
+                  alt={selectedTask.title}
+                  borderRadius="10px"
+                  mb={4}
+                />
+              </Flex>
+              <Flex
+                borderRadius="20px"
+                borderWidth={5}
+                borderColor="#001130"
+                bgColor="#00224D"
+                sx={{ boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)" }}
+                justifyContent="center"
+                alignItems="center"
+                flexDirection={"column"}
+                w={"100%"}
+                h={"30%"}
+                bg={"white"}
+                opacity={selectedTask.id == 3 ? 0.8 : 0.1}
+              >
+                <Image
+                  w={"60%"}
+                  h={"80%"}
+                  bg={"white"}
+                  src={"speedstick.PNG"}
+                  alt={selectedTask.title}
+                  borderRadius="10px"
+                  mb={4}
+                />
+              </Flex>
+              <Flex
+                borderRadius="20px"
+                borderWidth={5}
+                borderColor="#001130"
+                bgColor="yellow"
+                sx={{ boxShadow: "-2px 1px 20px 10px rgba(12, 143, 148, 1)" }}
+                justifyContent="center"
+                alignItems="center"
+                flexDirection={"column"}
+                w={"100%"}
+                h={"30%"}
+                bg={"white"}
+                opacity={selectedTask.id == 1 ? 0.8 : 0.1}
+              >
+                <Image
+                  w={"60%"}
+                  h={"80%"}
+                  bg={"white"}
+                  src={"xl.png"}
+                  alt={selectedTask.title}
+                  borderRadius="10px"
+                  mb={4}
+                />
+              </Flex>
+            </Flex>
+          </Flex>
+        )}
+      </Flex>
+      <Flex
+        h={"10vh"}
+        w={"100%"}
+        alignItems={"center"}
+        justifyContent={"center"}
+      >
+        <CustomSteps
+          currentStep={currentStep}
+          steps={[
+            {
+              title: "Choose Task",
+              description:
+                "Choose an existing task or decide to create a new task.",
+            },
+            {
+              title: "Customize Task",
+              description: "Customize the task according to your needs.",
+            },
+            {
+              title: "Launch Task",
+              description: "Launch the task after finalizing all details.",
+            },
+          ]}
+        />
+      </Flex>
+    </Flex>
   );
 };
 
