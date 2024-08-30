@@ -1,5 +1,11 @@
 car_address: 12.12.12.12
 image_paths:
-  objects_path: images/objects
-  stream_path: images/stream
+  stream_path: "images/stream"
+  objects_path: "images/objects"
+
+# Car address
+car_address: "10.0.0.23"
+
+# Detection confidence
+detection_confidence: 0.3
 retry_attempts: 20

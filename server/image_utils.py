@@ -36,10 +36,10 @@ def capture_frame(frame_type,frame_name=""):
         os.makedirs(save_directory)
     print('Fetching image from car address...')
     try: 
-        requests.get(f'http://{car_address}/ledon')
+        # requests.get(f'http://{car_address}/ledon')
         time.sleep(1.5)
         response = requests.get(f'http://{car_address}/left')
-        requests.get(f'http://{car_address}/ledoff')
+        # requests.get(f'http://{car_address}/ledoff')
         print('image fetched')
         if response.status_code == 200:
             image_data = response.content
