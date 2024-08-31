@@ -1,8 +1,8 @@
 # constants.yaml
 
 # New constant variables
-num_of_aligns: 2
-max_search_attempts: 20
+num_of_aligns: 1
+max_search_attempts: 10
 max_distance: 80
 min_distance: 25
 alignment_threshold: 0.3 # 30% of frame width for alignment
@@ -13,4 +13,10 @@ search_left_delay: 150
 180_degree_turn_delay: 700
 
 # Object Label for the starting point
-starting_point_label: "bottle"
+starting_point_label: "start"
+
+objects_confidence: 
+  start: 0.2
+  bottle: 0.3
+  can: 0.3
+  deodorant: 0.3

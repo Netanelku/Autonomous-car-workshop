@@ -12,8 +12,15 @@ import time
 import image_utils
 import yaml
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Global variable to store task status
 task_status = {
@@ -112,7 +119,7 @@ def save_object():
         return str(e), 500
     return f'{object_name} object saved successfully', 200
 
-@app.route('/camera/locating_any_objects', methods=['GET'])
+@app.get("/camera/locating_any_objects")
 async def locate_and_align_object(object_label: str):
     if not object_label:
         raise HTTPException(status_code=400, detail="Missing 'object_label' parameter")
@@ -125,7 +132,8 @@ async def locate_and_align_object(object_label: str):
 
         car_address = config['car_address']
         requests.get(f'http://{car_address}/ledon')
-        detection_confidence = config['detection_confidence']
+        detection_confidence = constants['objects_confidence'][object_label]
+        print(f'Locating and aligning object: {object_label} with confidence: {detection_confidence}')
         detector = ObjectDetector()
         count = 0
 
@@ -150,7 +158,7 @@ async def locate_and_align_object(object_label: str):
                 count += 1
                 try:
                     cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
-                    results = detector.detect(cropped_img)
+                    results = detector.detect(cropped_img, object_label)
 
                     if results:
                         for result in results:
@@ -208,7 +216,7 @@ async def locate_and_align_object(object_label: str):
         def search_after_movement():
             for i in range(num_of_aligns):
                 cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'search_after_move-{i}')
-                results = detector.detect(cropped_img)
+                results = detector.detect(cropped_img, object_label)
                 if results:
                     for result in results:
                         label_result, confidence, x1, y1, x2, y2, line_length = result
@@ -220,7 +228,7 @@ async def locate_and_align_object(object_label: str):
                                 'frame_width': cropped_img.shape[1],
                                 'line_length': line_length
                             }
-                requests.get(f'http://{car_address}/manualDriving?dir=right&delay={align_left_right_delay}')
+                #requests.get(f'http://{car_address}/manualDriving?dir=right&delay={align_left_right_delay}')
             return {'found': False} 
         
         def backward():
@@ -267,12 +275,12 @@ async def locate_and_align_object(object_label: str):
                     else:
                         print("Alignment failed. Retrying.")
 
-            return JSONResponse(content={**search_result, **align_result})
+            #return JSONResponse(content={**search_result, **align_result})
         finally:
             requests.get(f'http://{car_address}/ledoff')
 
     # Locate and align the object using the input object label
-    desired_object_result = locate_and_align(object_label)
+    locate_and_align(object_label)
 
     # Load the object label from the constants.yaml file
     with open('constants.yaml', 'r') as file:
@@ -280,9 +288,10 @@ async def locate_and_align_object(object_label: str):
     starting_point_label = constants['starting_point_label']
 
     # Locate and align the object using the second object label
-    return_object_result = locate_and_align(starting_point_label)
+    #locate_and_align(starting_point_label)
 
-    return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
+    return jsonify({"status":"success"})
+    # return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
 
 @app.route('/task/status', methods=['GET'])
 def get_task_status():
@@ -292,5 +301,6 @@ def get_task_status():
 # Main Execution
 # ================================
 
-if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8080)

@@ -6,10 +6,10 @@ import math
 
 class ObjectDetector:
     def __init__(self):
-        self.model = YOLO('yolov8n.pt')
+        self.model = YOLO('updateWeights.pt')
         self.counter = 0
 
-    def detect(self, image):
+    def detect(self, image, object_label):
         results = self.model(image)
         self.counter += 1
         return_value = None  # Initialize as None to store the closest object
@@ -37,8 +37,9 @@ class ObjectDetector:
                 box_height = y2 - y1
 
                 # Check if the width is greater than the height
-                if box_width > box_height:
-                    continue  # Skip this detection if width is greater than height
+                if object_label != "board":
+                    if box_width > box_height:
+                        continue  # Skip this detection if width is greater than height
 
                 # Calculate the center of the object
                 center_object_x = (x1 + x2) // 2
