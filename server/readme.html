@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Car Control System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            padding: 0;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>FastAPI Car Control System</h1>
+
+    <h2>Overview</h2>
+    <p>This project is a FastAPI application designed to manage and interact with a car system for object detection and retrieval. It provides endpoints for updating configuration, checking system health, and handling tasks related to object detection and alignment.</p>
+
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#configuration">Configuration</a></li>
+        <li><a href="#endpoints">Endpoints</a>
+            <ul>
+                <li><a href="#ui-endpoints">UI Endpoints</a></li>
+                <li><a href="#car-configuration-endpoints">Car Configuration Endpoints</a></li>
+                <li><a href="#task-management-endpoints">Task Management Endpoints</a></li>
+                <li><a href="#main-operation-endpoints">Main Operation Endpoints</a></li>
+            </ul>
+        </li>
+        <li><a href="#running-the-application">Running the Application</a></li>
+        <li><a href="#license">License</a></li>
+    </ul>
+
+    <h2 id="installation">Installation</h2>
+    <ol>
+        <li><strong>Clone the repository:</strong>
+            <pre><code>git clone https://github.com/your-repository-url.git
+cd your-repository-directory</code></pre>
+        </li>
+        <li><strong>Set up a virtual environment:</strong>
+            <pre><code>python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate</code></pre>
+        </li>
+        <li><strong>Install the required packages:</strong>
+            <pre><code>pip install -r requirements.txt</code></pre>
+        </li>
+        <li><strong>Create a config.yaml file:</strong>
+            <p>Ensure you have a <code>config.yaml</code> file in the root directory with the following structure:</p>
+            <pre><code>car_address: 'http://192.168.1.100'
+retry_attempts: 5</code></pre>
+        </li>
+        <li><strong>Create a tasks.yaml file:</strong>
+            <p>Ensure you have a <code>tasks.yaml</code> file in the root directory with the following structure:</p>
+            <pre><code>tasks: {}</code></pre>
+        </li>
+    </ol>
+
+    <h2 id="configuration">Configuration</h2>
+    <ul>
+        <li><code>config.yaml</code>: Contains the configuration for the car system, such as the car's IP address and retry attempts.</li>
+        <li><code>tasks.yaml</code>: Stores the status of various tasks.</li>
+    </ul>
+
+    <h2 id="endpoints">Endpoints</h2>
+
+    <h3 id="ui-endpoints">UI Endpoints</h3>
+    <ul>
+        <li><code>GET /</code>: Serves the README file content.</li>
+        <li><code>POST /car/updateRetryAttempts</code>: Updates the retry attempts for the car system.</li>
+        <li><code>GET /car/currentAddress</code>: Retrieves the current IP address of the car.</li>
+        <li><code>POST /car/updateAddress</code>: Updates the IP address of the car.</li>
+        <li><code>GET /task/status/{task_id}</code>: Retrieves the status of a specific task by its ID.</li>
+    </ul>
+
+    <h3 id="car-configuration-endpoints">Car Configuration Endpoints</h3>
+    <ul>
+        <li><code>GET /health</code>: Checks the health of the car server.</li>
+    </ul>
+
+    <h3 id="task-management-endpoints">Task Management Endpoints</h3>
+    <ul>
+        <li><code>GET /camera/save_object</code>: Saves an image of the specified object.</li>
+    </ul>
+
+    <h3 id="main-operation-endpoints">Main Operation Endpoints</h3>
+    <ul>
+        <li><code>GET /camera/locating_any_objects</code>: Initiates the process to locate and align the target object and the starting point.</li>
+    </ul>
+
+    <h2 id="running-the-application">Running the Application</h2>
+    <p>To start the FastAPI application, run the following command:</p>
+    <pre><code>uvicorn main:app --host 127.0.0.1 --port 8080</code></pre>
+    <p>Replace <code>main</code> with the name of your Python file if it is different.</p>
+
+    <h2 id="license">License</h2>
+    <p>This project is licensed under the MIT License. See the <a href="LICENSE">LICENSE</a> file for details.</p>
+
+</body>
+</html>

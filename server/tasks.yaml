@@ -1,0 +1,250 @@
+tasks:
+  12345:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T10:00:00Z'
+    - action: moving_towards_object
+      details: Started moving towards the object.
+      timestamp: '2024-08-31T10:05:00Z'
+    - action: picked_up_object
+      details: Object picked up.
+      timestamp: '2024-08-31T10:07:00Z'
+    - action: moving_to_starting_point
+      details: Started moving towards the starting point.
+      timestamp: '2024-08-31T10:09:00Z'
+    object_label: bottle
+    percentage_complete: 25
+    repeats: 5/20
+    result: null
+    status: running
+  67890:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T09:00:00Z'
+    - action: moving_towards_object
+      details: Started moving towards the object.
+      timestamp: '2024-08-31T09:05:00Z'
+    - action: picked_up_object
+      details: Object picked up.
+      timestamp: '2024-08-31T09:07:00Z'
+    - action: moving_to_starting_point
+      details: Started moving towards the starting point.
+      timestamp: '2024-08-31T09:09:00Z'
+    object_label: can
+    percentage_complete: 100
+    repeats: 20/20
+    result: Object located successfully
+    status: completed
+  10f715fe-c5d8-46df-9565-9692bc23672d:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:15:47.777733Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  fb71cb57-cb15-4443-a6fd-5e49970bb45a:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:16:41.444994Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  43b0d0e2-a0cb-4934-acb0-af1a4904a04e:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:17:27.519487Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  b0346a14-ac2c-4ce5-beaa-01447bc53cf0:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:18:12.977871Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  ce3ee3dd-c178-4e00-b173-b75ef24f2867:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:28:43.499062Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  dc292d71-862e-4f79-ade1-52be9dce46ce:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:32:33.222025Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  22743e1f-ff4c-4ac9-befa-4a9843f2a6fe:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:39:51.341505Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  e1671d4f-bfb9-4c6a-9d4f-c085fb9f881b:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:41:05.290022Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  b0a612db-1d75-45dc-acbc-22ade9831191:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:46:22.693430Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  95e74934-7950-4da1-b8e2-63961ae05607:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:46:45.125333Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  3f40cf6d-486f-41d7-a10d-454b1c1afcd4:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:49:54.968798Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  75c77723-9220-4e12-a94d-4e3dcdf79f5b:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:51:18.364144Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  abe33a85-dbc8-4c07-93ac-8c9ab8808bc3:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:55:06.297542Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  a3fe0782-76e1-47b6-a2a0-0fcad6ab2931:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:55:16.492440Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  27e7a0a8-03f8-4c97-99d6-53f335063bca:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:56:36.057135Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  9bf34fc9-e876-45e9-9cd1-72193c9ef10a:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:57:09.505685Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  e4d11639-ec26-4eaf-8f03-babfb9d4b088:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T18:58:30.037872Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  8b8bf1e7-9f09-4472-9576-ab7979f768d0:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T19:01:39.081958Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  007a7f1a-b5b9-4b76-a15d-feb67acb7def:
+    events:
+    - action: started_search
+      attempt: 1
+      details: Started looking for the object.
+      timestamp: '2024-08-31T19:02:22.963607Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running

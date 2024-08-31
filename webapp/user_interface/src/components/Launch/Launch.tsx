@@ -17,6 +17,7 @@ import {
   FormControl,
   FormLabel,
   Slider,
+  Icon,
   Fade,
   SliderTrack,
   SliderFilledTrack,
@@ -33,24 +34,28 @@ import backgroundImage from "../../images/background.jpg"; // Adjust the path as
 import CustomSteps from "./CustomSteps";
 import tasks from "./tasks.json"; // Importing the JSON file
 import { useConnection } from "../context/ConnectionContext";
+import { FaRocket } from "react-icons/fa";
 
 const Launch: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [customTaskName, setCustomTaskName] = useState("");
   const [customTaskInstructions, setCustomTaskInstructions] = useState("");
-  const [liveAudioStatus, setLiveAudioStatus] = useState(false);
+  const [liveAudioStatus, setLiveAudioStatus] = useState(true);
   const [liveNotifications, setLiveNotifications] = useState(true);
   const [retryAttempts, setRetryAttempts] = useState(20);
   const [ledStatus, setLedStatus] = useState(true);
   const [showSceneDescription, setShowSceneDescription] = useState(true);
   const [isStep3Visible, setIsStep3Visible] = useState(false);
-  const [status, setStatus] = useState<string>("Idle");
+  // const [status, setStatus] = useState<string>("Idle");
   const toast = useToast(); // Initialize useToast
   const { isAuthenticated, logout } = useAuth();
   const { isConnected, isConnecting } = useConnection();
   const [percentage, setPercentage] = useState(0);
   const [textIndex, setTextIndex] = useState(0);
+  const [isLaunched, setIsLaunched] = useState(false); // State to track if launched
+  const [currentTask, setCurrentTask] = useState("");
+  const [status, setStatus] = useState("");
 
   const promotionalTexts = [
     "Revolutionize retrieval with smart automation",
@@ -65,22 +70,43 @@ const Launch: React.FC = () => {
     "Lead with the latest in smart technology",
   ];
   useEffect(() => {
-    const percentageInterval = setInterval(() => {
-      setPercentage((prev) =>
-        prev < 100 ? prev + Math.floor(Math.random() * 10 + 1) : 1
-      );
-    }, 2000);
+    let percentageInterval: NodeJS.Timeout | null = null;
 
-    // Change the promotional text every 3 seconds
-    const textInterval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % promotionalTexts.length);
-    }, 3000);
+    if (isLaunched && currentTask) {
+      const fetchStatus = async () => {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8080/task/status/${currentTask}`
+          );
+          const data = await response.json();
+          setPercentage(data.percentage_complete || 0);
+          setStatus(data.status || "unknown");
+        } catch (error) {
+          console.error("Error fetching task status:", error);
+        }
+      };
+
+      // Fetch status immediately and then periodically
+      fetchStatus();
+      percentageInterval = setInterval(fetchStatus, 2000);
+
+      // Change the promotional text every 3 seconds
+      const textInterval = setInterval(() => {
+        setTextIndex((prev) => (prev + 1) % promotionalTexts.length);
+      }, 3000);
+
+      return () => {
+        clearInterval(percentageInterval as NodeJS.Timeout);
+        clearInterval(textInterval);
+      };
+    }
 
     return () => {
-      clearInterval(percentageInterval);
-      clearInterval(textInterval);
+      if (percentageInterval) {
+        clearInterval(percentageInterval);
+      }
     };
-  }, [promotionalTexts.length]);
+  }, [isLaunched, currentTask, promotionalTexts.length]);
   useEffect(() => {
     if (currentStep === 3) {
       setIsStep3Visible(true);
@@ -88,6 +114,24 @@ const Launch: React.FC = () => {
       setIsStep3Visible(false);
     }
   }, [currentStep]);
+  const handleLaunchClick = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8080/camera/locating_any_objects?target_object_id=${selectedTask.id}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setCurrentTask(data.task_id);
+      console.log(data.task_id);
+      setIsLaunched(true);
+    } catch (error) {
+      console.error("Error during fetch:", error);
+    }
+  };
 
   const handleTaskSelection = (taskId: number) => {
     const task = tasks.find((task) => task.id === taskId);
@@ -105,18 +149,6 @@ const Launch: React.FC = () => {
     console.log("LED Status:", ledStatus);
     setCurrentStep(3); // Move to the next step
     // Randomly choose a status
-    const statuses = ["Launching", "In Progress", "Completed"];
-    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    setStatus(randomStatus);
-    if (liveNotifications) {
-      toast({
-        title: "Task Updated",
-        description: `The task status has been updated to ${randomStatus}.`,
-        status: "info",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
   };
   const updateRetryAttemptsOnServer = async (attempts: number) => {
     try {
@@ -147,24 +179,23 @@ const Launch: React.FC = () => {
     updateRetryAttemptsOnServer(retryAttempts);
   }, [retryAttempts]);
   useEffect(() => {
-    // Announce status change
-    if (liveAudioStatus && window.speechSynthesis) {
-      const utterance = new SpeechSynthesisUtterance(
-        `The status is now ${status}.`
-      );
-      window.speechSynthesis.speak(utterance);
+    if (status != "") {
+      if (liveAudioStatus && window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(`${status}.`);
+        window.speechSynthesis.speak(utterance);
+      }
+      if (liveNotifications) {
+        toast({
+          position: "top-right",
+          title: "Status Update",
+          description: `${status}.`,
+          status: "info",
+          duration: 5000,
+          isClosable: false,
+        });
+      }
     }
-    // Notify if live notifications are enabled
-    if (liveNotifications) {
-      toast({
-        title: "Status Announced",
-        description: `The status has been announced as ${status}.`,
-        status: "info",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  }, [status]);
+  }, [status, liveAudioStatus, liveNotifications, toast]);
   return (
     <Flex
       flex={1}
@@ -726,6 +757,7 @@ const Launch: React.FC = () => {
                   colorScheme="teal"
                   size="lg"
                   onClick={() => setCurrentStep(1)}
+                  isDisabled={isLaunched}
                 >
                   Go Back to Task Selection
                 </Button>
@@ -770,13 +802,7 @@ const Launch: React.FC = () => {
                   />
                 </Flex>
               ) : (
-                <Flex
-                  w="100%"
-                  h="100%"
-                  flexDirection="column"
-                  p={4}
-                  flexDir={"column"}
-                >
+                <Flex w="100%" h="100%" flexDirection="column" p={4}>
                   <Flex
                     flex={8}
                     justifyContent={"center"}
@@ -787,7 +813,7 @@ const Launch: React.FC = () => {
                       w={"40vw"}
                       h={"55vh"}
                       sx={{
-                        opacity: percentage / 100,
+                        opacity: isLaunched ? percentage / 100 : 1, // Conditionally set opacity
                         transition: "opacity 3s ease",
                       }}
                     />
@@ -799,39 +825,59 @@ const Launch: React.FC = () => {
                     alignItems={"center"}
                     flexDir={"column"}
                   >
-                    <Flex
-                      w={"100%"}
-                      flexDir={"row"}
-                      justifyContent={"space-between"}
-                    >
-                      <Box></Box>
-                      <Text
-                        fontSize="2xl"
-                        fontWeight="bold"
-                        textAlign="center"
-                        transition="opacity 3s ease"
-                      >
-                        {promotionalTexts[textIndex]}
-                      </Text>{" "}
-                      <Text
-                        fontSize="xl"
-                        fontWeight="bold"
-                        color="white" // High contrast for better visibility
+                    {!isLaunched ? (
+                      <Flex
+                        w={"100%"}
+                        flexDir={"row"}
+                        justifyContent={"center"}
+                        alignItems={"center"}
                         mb={4}
-                        textAlign="center"
                       >
-                        {percentage}%
-                      </Text>
-                    </Flex>
+                        <Button
+                          leftIcon={<Icon as={FaRocket} />}
+                          colorScheme="teal"
+                          onClick={handleLaunchClick}
+                        >
+                          Launch
+                        </Button>
+                      </Flex>
+                    ) : (
+                      <>
+                        <Flex
+                          w={"100%"}
+                          flexDir={"row"}
+                          justifyContent={"space-between"}
+                          mb={4}
+                        >
+                          <Text
+                            fontSize="2xl"
+                            fontWeight="bold"
+                            textAlign="center"
+                            transition="opacity 3s ease"
+                          >
+                            {promotionalTexts[textIndex]}
+                          </Text>
+                          <Text
+                            fontSize="xl"
+                            fontWeight="bold"
+                            color="white" // High contrast for better visibility
+                            mb={4}
+                            textAlign="center"
+                          >
+                            {percentage}%
+                          </Text>
+                        </Flex>
 
-                    <Progress
-                      size="lg"
-                      value={percentage}
-                      colorScheme="teal" // Vibrant color scheme
-                      width="100%" // Adjusted width for alignment
-                      borderRadius="md" // Rounded corners for the progress bar
-                      boxShadow="md" // Shadow for depth on the progress bar
-                    />
+                        <Progress
+                          size="lg"
+                          value={percentage}
+                          colorScheme="teal" // Vibrant color scheme
+                          width="100%" // Adjusted width for alignment
+                          borderRadius="md" // Rounded corners for the progress bar
+                          boxShadow="md" // Shadow for depth on the progress bar
+                        />
+                      </>
+                    )}
                   </Flex>
                 </Flex>
               )}
