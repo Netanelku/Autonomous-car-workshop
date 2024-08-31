@@ -7,6 +7,15 @@ void stopCar() {
     WheelAct(LOW, LOW, LOW, LOW); // Stop the car
     Serial.println("Stop");
 }
+inline void WheelActWithPWM(int in1, int in2, int in3, int in4, int left_pwm, int right_pwm)
+{
+    ledcWrite(PWM_CHANNEL_LEFT, left_pwm);   // Set PWM for left wheel
+    ledcWrite(PWM_CHANNEL_RIGHT, right_pwm); // Set PWM for right wheel
+    digitalWrite(gpLf, in1);
+    digitalWrite(gpLb, in2);
+    digitalWrite(gpRf, in3);
+    digitalWrite(gpRb, in4);
+}
 
 httpd_handle_t car_httpd = NULL;
 
@@ -78,6 +87,10 @@ static esp_err_t go_handler(httpd_req_t *req)
     char delay_str[10] = {0}; // Buffer to store delay value
     int delay_length = 1000; // Default delay length
 
+    // PWM values to control the speed of the motors
+    int left_wheel_pwm = 90; // Adjust this value if the car drifts left or right
+    int right_wheel_pwm = 100; // Adjust this value if the car drifts left or right
+
     // Get the query parameter string
     stopCar();
     size_t buf_len = httpd_req_get_url_query_len(req) + 1;
@@ -100,7 +113,7 @@ static esp_err_t go_handler(httpd_req_t *req)
             if (strcmp(direction, "forward") == 0)
             {
                 // Perform action for forward direction
-                WheelAct(HIGH, LOW, HIGH, LOW); // Move forward
+                WheelActWithPWM(HIGH, LOW, HIGH, LOW, left_wheel_pwm, right_wheel_pwm); // Move forward
             }
             else if (strcmp(direction, "backward") == 0)
             {
@@ -117,11 +130,10 @@ static esp_err_t go_handler(httpd_req_t *req)
                 // Perform action for right direction
                 WheelAct(LOW, HIGH, HIGH, LOW); // Turn right
             }
-            // Add more conditions for other directions as needed
             else
             {
                 // Invalid direction value
-                httpd_resp_send(req, "Invalid direction",20);
+                httpd_resp_send(req, "Invalid direction", 20);
                 free(buf);
                 return ESP_FAIL;
             }
@@ -136,9 +148,12 @@ static esp_err_t go_handler(httpd_req_t *req)
         }
     }
     free(buf);
-    httpd_resp_send(req, "Direction or delay parameter missing",50);
+    httpd_resp_send(req, "Direction or delay parameter missing", 50);
     return ESP_FAIL;
 }
+
+
+
 
 static esp_err_t back_handler(httpd_req_t *req)
 {

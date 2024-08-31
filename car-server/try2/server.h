@@ -27,6 +27,10 @@ const int gpRb = 15;  // Right forward
 const int gpRf = 13;  // Right backward
 const int gpLed = 4;  // LED pin
 
+// Define the PWM channels for controlling the motors
+#define PWM_CHANNEL_LEFT  1
+#define PWM_CHANNEL_RIGHT 0
+
 
 typedef struct {
         httpd_req_t *req;
@@ -38,6 +42,8 @@ static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 extern int carSpeed;  // Declare the global carSpeed variable
 extern int carDirection;
+
+// Function to control wheel actions with PWM
 
 
 //handler functions for controlling the car

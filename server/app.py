@@ -124,11 +124,7 @@ def save_object():
         return str(e), 500
     return f'{object_name} object saved successfully', 200
 
-<<<<<<< HEAD
-@app.get("/camera/locating_any_objects")
-=======
 @app.route("/camera/locating_any_objects", tags=["Car Endpoints"])
->>>>>>> 73617dabc4cd33e7e16fe2cef0824ff3f328ebeb
 async def locate_and_align_object(object_label: str):
     if not object_label:
         raise HTTPException(status_code=400, detail="Missing 'object_label' parameter")
@@ -138,20 +134,12 @@ async def locate_and_align_object(object_label: str):
     with open('constants.yaml', 'r') as file:
         constants = yaml.safe_load(file)
 
-<<<<<<< HEAD
         car_address = config['car_address']
         requests.get(f'http://{car_address}/ledon')
         detection_confidence = constants['objects_confidence'][object_label]
         print(f'Locating and aligning object: {object_label} with confidence: {detection_confidence}')
         detector = ObjectDetector()
         count = 0
-=======
-    car_address = config['car_address']
-    requests.get(f'http://{car_address}/ledon')
-    detection_confidence = config['detection_confidence']
-    detector = ObjectDetector()
-    count = 0
->>>>>>> 73617dabc4cd33e7e16fe2cef0824ff3f328ebeb
 
     num_of_aligns = constants['num_of_aligns']
     max_search_attempts = constants['max_search_attempts']
@@ -164,7 +152,6 @@ async def locate_and_align_object(object_label: str):
     search_left_delay = constants['search_left_delay']
     half_circle_delay = constants['180_degree_turn_delay']
 
-<<<<<<< HEAD
         def move_to_search_object():
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')
             if move_response.status_code != 200:
@@ -235,27 +222,11 @@ async def locate_and_align_object(object_label: str):
             for i in range(num_of_aligns):
                 cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'search_after_move-{i}')
                 results = detector.detect(cropped_img, object_label)
-=======
-    def move_to_search_object():
-        move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')  # Use move_forward_delay from constans
-        if move_response.status_code != 200:
-            print("Failed to move car to left for searching:", move_response.status_code)              
-                
-    def search_for_object():
-        nonlocal count
-        while count < max_search_attempts:  # Use max_search_attempts from constants
-            count += 1
-            try:
-                cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
-                results = detector.detect(cropped_img)
-
->>>>>>> 73617dabc4cd33e7e16fe2cef0824ff3f328ebeb
                 if results:
                     for result in results:
                         label_result, confidence, x1, y1, x2, y2, line_length = result
                         print(f'Label result:{label_result}, Confidence:{confidence}, Line Length:{line_length}')
                         if confidence > detection_confidence and label_result == object_label:
-<<<<<<< HEAD
                             return {
                                 'found': True,
                                 'centroid_x': (x1 + x2) // 2,
@@ -269,10 +240,6 @@ async def locate_and_align_object(object_label: str):
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={min_distance_forward_delay}')
             if move_response.status_code != 200:
                 print(f"Failed to move car backward: {move_response.status_code}, Attempted delay: {min_distance_forward_delay}")                     
-=======
-                            centroid_x = (x1 + x2) // 2
-                            return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
->>>>>>> 73617dabc4cd33e7e16fe2cef0824ff3f328ebeb
                 
                 move_to_search_object()
 
@@ -362,25 +329,6 @@ async def locate_and_align_object(object_label: str):
         if not search_result['found']:
             return JSONResponse(content={'found': False})
 
-<<<<<<< HEAD
-            #return JSONResponse(content={**search_result, **align_result})
-        finally:
-            requests.get(f'http://{car_address}/ledoff')
-
-    # Locate and align the object using the input object label
-    locate_and_align(object_label)
-
-    # Load the object label from the constants.yaml file
-    with open('constants.yaml', 'r') as file:
-        constants = yaml.safe_load(file)
-    starting_point_label = constants['starting_point_label']
-
-    # Locate and align the object using the second object label
-    #locate_and_align(starting_point_label)
-
-    return jsonify({"status":"success"})
-    # return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
-=======
         if search_result['found']:
             while True:
                 align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['line_length'])
@@ -408,14 +356,23 @@ async def locate_and_align_object(object_label: str):
                     print("Alignment failed. Retrying.")
 
         return JSONResponse(content={**search_result, **align_result})
-    finally:
-        requests.get(f'http://{car_address}/ledoff')
-     
+    #return JSONResponse(content={**search_result, **align_result})
+        finally:
+            requests.get(f'http://{car_address}/ledoff')
 
-@app.route('/task/status', methods=['GET'])
-def get_task_status():
-    return jsonify(task_status)
->>>>>>> 73617dabc4cd33e7e16fe2cef0824ff3f328ebeb
+    # Locate and align the object using the input object label
+    locate_and_align(object_label)
+
+    # Load the object label from the constants.yaml file
+    with open('constants.yaml', 'r') as file:
+        constants = yaml.safe_load(file)
+    starting_point_label = constants['starting_point_label']
+
+    # Locate and align the object using the second object label
+    #locate_and_align(starting_point_label)
+
+    return jsonify({"status":"success"})
+    # return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
 
 @app.route('/task/status', methods=['GET'])
 def get_task_status():
