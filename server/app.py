@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from detection import ObjectDetector
 import cv2
 import json
@@ -8,8 +11,6 @@ import os
 import time
 import image_utils
 import yaml
-from fastapi.responses import JSONResponse
-
 app = Flask(__name__)
 CORS(app)
 
@@ -109,7 +110,6 @@ def save_object():
     except requests.exceptions.RequestException as e:
         return str(e), 500
     return f'{object_name} object saved successfully', 200
-
 
 @app.route("/camera/locating_any_objects", tags=["Car Endpoints"])
 async def locate_and_align_object(object_label: str):
@@ -277,6 +277,10 @@ async def locate_and_align_object(object_label: str):
     finally:
         requests.get(f'http://{car_address}/ledoff')
      
+
+@app.route('/task/status', methods=['GET'])
+def get_task_status():
+    return jsonify(task_status)
 
 @app.route('/task/status', methods=['GET'])
 def get_task_status():

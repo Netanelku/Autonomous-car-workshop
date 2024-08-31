@@ -2,4 +2,5 @@ car_address: 12.12.12.12
 image_paths:
   objects_path: images/objects
   stream_path: images/stream
+
 retry_attempts: 20
