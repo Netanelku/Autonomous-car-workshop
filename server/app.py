@@ -120,7 +120,8 @@ def save_object():
     return f'{object_name} object saved successfully', 200
 
 
-@app.route("/camera/locating_any_objects", tags=["Car Endpoints"])
+
+@app.get("/camera/locating_any_objects", tags=["Car Endpoints"])
 async def locate_and_align_object(object_label: str):
     if not object_label:
         raise HTTPException(status_code=400, detail="Missing 'object_label' parameter")
@@ -157,7 +158,8 @@ async def locate_and_align_object(object_label: str):
             while count < max_search_attempts:
                 count += 1
                 try:
-                    cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
+                    frame_name = f'{object_label}_{count}'
+                    cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=frame_name)
                     results = detector.detect(cropped_img, object_label)
 
                     if results:
@@ -288,7 +290,7 @@ async def locate_and_align_object(object_label: str):
     starting_point_label = constants['starting_point_label']
 
     # Locate and align the object using the second object label
-    #locate_and_align(starting_point_label)
+    locate_and_align(starting_point_label)
 
     return jsonify({"status":"success"})
     # return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})

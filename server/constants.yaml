@@ -7,16 +7,16 @@ max_distance: 80
 min_distance: 25
 alignment_threshold: 0.3 # 30% of frame width for alignment
 min_distance_forward_delay: 250
-move_forward_delay: 600
+move_forward_delay: 450
 align_left_right_delay: 100
 search_left_delay: 150
 180_degree_turn_delay: 700
 
 # Object Label for the starting point
-starting_point_label: "start"
+starting_point_label: "Start"
 
 objects_confidence: 
-  start: 0.2
+  Start: 0.2
   bottle: 0.3
   can: 0.3
   deodorant: 0.3
