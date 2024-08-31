@@ -1,3 +1,5 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,45 +11,83 @@ import os
 import time
 import image_utils
 import yaml
-import uvicorn
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = Flask(__name__)
+CORS(app)
+
+# Global variable to store task status
+task_status = {
+    'current_task': None,
+    'status': 'idle'  # possible values: idle, running, completed, error
+}
 
 # ================================
 # UI Endpoints
 # ================================
 
-@app.get("/", response_class=PlainTextResponse, tags=["UI Endpoints"])
-async def readme():
+@app.route('/', methods=['GET'])
+def readme():
     with open('./readme.txt', 'r') as file:
         readme_content = file.read()
     return readme_content
 
-@app.get("/car/health", tags=["UI Endpoints"])
-async def car_health():
+@app.route('/car/health', methods=['GET'])
+def car_health():
     pass
 
-@app.get("/car/motion/start", tags=["UI Endpoints"])
-async def car_motion_start():
+@app.route('/car/motion/start', methods=['GET'])
+def car_motion_start():
     pass
 
-@app.get("/car/motion/stop", tags=["UI Endpoints"])
-async def car_motion_stop():
+@app.route('/car/motion/stop', methods=['GET'])
+def car_motion_stop():
     pass
+
+@app.route('/car/updateRetryAttempts', methods=['POST'])
+def update_retry_attempts():
+    new_attempts = request.json.get('retryAttempts')
+    if new_attempts is None:
+        return jsonify({'error': 'No retry attempts provided'}), 400
+
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+    config['retry_attempts'] = new_attempts
+
+    with open('config.yaml', 'w') as file:
+        yaml.safe_dump(config, file)
+
+    return jsonify({'message': 'Retry attempts updated successfully', 'retryAttempts': new_attempts})
+
+@app.route('/car/currentAddress', methods=['GET'])
+def car_currentAddress():
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+    car_address = config['car_address']
+    return jsonify({'current_ip': car_address})
+
+@app.route('/car/updateAddress', methods=['POST'])
+def car_updateAddress():
+    new_ip = request.json.get('new_ip')
+    if not new_ip:
+        return jsonify({'error': 'No IP address provided'}), 400
+
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
+
+    config['car_address'] = new_ip
+
+    with open('config.yaml', 'w') as file:
+        yaml.safe_dump(config, file)
+
+    return jsonify({'message': 'IP address updated successfully', 'new_ip': new_ip})
 
 # ================================
 # Car Endpoints
 # ================================
 
-@app.get("/health", tags=["Car Endpoints"])
-async def health_check():
+@app.route('/health', methods=['GET'])
+def health_check():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     car_address = config['car_address']
@@ -55,42 +95,24 @@ async def health_check():
     try:
         response = requests.get(car_server_url)
         if response.status_code == 200:
-            return JSONResponse(content={'status': 'ok', 'message': 'Car server is live'}, status_code=200)
+            return jsonify({'status': 'ok', 'message': 'Car server is live'}), 200
         else:
-            return JSONResponse(content={'status': 'error', 'message': 'Car server is not reachable'}, status_code=response.status_code)
+            return jsonify({'status': 'error', 'message': 'Car server is not reachable'}), response.status_code
     except requests.exceptions.RequestException as e:
-        return JSONResponse(content={'status': 'error', 'message': 'Car server is not reachable'}, status_code=500)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
-# @app.get("/camera/detection_comp", tags=["Car Endpoints"])
-# async def detect_object():
-#     localizer = ObjectDetector()
-#     query_image_path = 'check.jpg'
-#     query_image = cv2.imread(query_image_path, cv2.IMREAD_GRAYSCALE)
-#     if query_image is None:
-#         raise HTTPException(status_code=400, detail=f"Error reading query image: {query_image_path}")
-#     result = localizer.find_and_localize_object(query_image)
-#     return JSONResponse(content=result)
-
-@app.get("/camera/save_object", tags=["Car Endpoints"])
-async def save_object(name: str):
-    if not name:
-        raise HTTPException(status_code=400, detail="Missing 'name' parameter")
-     
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
-    car_address = config['car_address']
+@app.route('/camera/save_object', methods=['GET'])
+def save_object():
+    object_name = request.args.get('name')
+    if not object_name:
+        return "Missing 'name' parameter", 400
     try:
-        for i in range(40):       
-            requests.get(f'http://{car_address}/ledon')
-            time.sleep(2)
-            image_utils.capture_frame(frame_type="object", frame_name=f'{name}-{i}')
-            requests.get(f'http://{car_address}/ledoff')
+        image_utils.capture_frame(frame_type="object", frame_name=f'{object_name}')
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return JSONResponse(content=f'{name} object saved successfully', status_code=200)
+        return str(e), 500
+    return f'{object_name} object saved successfully', 200
 
-
-@app.get("/camera/locating_any_objects", tags=["Car Endpoints"])
+@app.route('/camera/locating_any_objects', methods=['GET'])
 async def locate_and_align_object(object_label: str):
     if not object_label:
         raise HTTPException(status_code=400, detail="Missing 'object_label' parameter")
@@ -262,9 +284,13 @@ async def locate_and_align_object(object_label: str):
 
     return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
 
+@app.route('/task/status', methods=['GET'])
+def get_task_status():
+    return jsonify(task_status)
+
 # ================================
 # Main Execution
 # ================================
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
+if __name__ == '__main__':
+    app.run(debug=True, port=8080)
