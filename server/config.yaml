@@ -1,10 +1,6 @@
+car_address: 10.0.0.18
+detection_confidence: 0.3
 image_paths:
   objects_path: images/objects
   stream_path: images/stream
-
-# Car address
-car_address: "172.20.10.4"
-
-# Detection confidence
-detection_confidence: 0.3
-retry_attempts: 20
+retry_attempts: 5

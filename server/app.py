@@ -1,7 +1,5 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from detection import ObjectDetector
 import cv2
@@ -32,68 +30,85 @@ task_status = {
 # UI Endpoints
 # ================================
 
-@app.route('/', methods=['GET'])
+@app.get('/', response_class=PlainTextResponse)
 def readme():
     with open('./readme.txt', 'r') as file:
         readme_content = file.read()
     return readme_content
 
-@app.route('/car/health', methods=['GET'])
+@app.get('/car/health')
 def car_health():
     pass
 
-@app.route('/car/motion/start', methods=['GET'])
+@app.get('/car/motion/start')
 def car_motion_start():
     pass
 
-@app.route('/car/motion/stop', methods=['GET'])
+@app.get('/car/motion/stop')
 def car_motion_stop():
     pass
 
-@app.route('/car/updateRetryAttempts', methods=['POST'])
-def update_retry_attempts():
-    new_attempts = request.json.get('retryAttempts')
-    if new_attempts is None:
-        return jsonify({'error': 'No retry attempts provided'}), 400
+@app.post('/car/updateRetryAttempts')
+async def update_retry_attempts(request: Request):
+    try:
+        new_attempts = await request.json()  # Await the JSON data
+        retry_attempts = new_attempts.get('retryAttempts')
+        
+        if retry_attempts is None:
+            return JSONResponse(content={'error': 'No retry attempts provided'}, status_code=400)
 
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
+        # Read the existing configuration
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
 
-    config['retry_attempts'] = new_attempts
+        # Update the retry_attempts
+        config['retry_attempts'] = retry_attempts
 
-    with open('config.yaml', 'w') as file:
-        yaml.safe_dump(config, file)
+        # Write the updated configuration back to the file
+        with open('config.yaml', 'w') as file:
+            yaml.safe_dump(config, file)
 
-    return jsonify({'message': 'Retry attempts updated successfully', 'retryAttempts': new_attempts})
+        return JSONResponse(content={'message': 'Retry attempts updated successfully', 'retryAttempts': retry_attempts})
+    except Exception as e:
+        return JSONResponse(content={'error': str(e)}, status_code=500)
 
-@app.route('/car/currentAddress', methods=['GET'])
-def car_currentAddress():
+@app.get('/car/currentAddress')
+def car_current_address():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
     car_address = config['car_address']
-    return jsonify({'current_ip': car_address})
+    return JSONResponse(content={'current_ip': car_address})
 
-@app.route('/car/updateAddress', methods=['POST'])
-def car_updateAddress():
-    new_ip = request.json.get('new_ip')
-    if not new_ip:
-        return jsonify({'error': 'No IP address provided'}), 400
+@app.post('/car/updateAddress')
+async def car_update_address(request: Request):
+    try:
+        # Await the JSON data
+        data = await request.json()
+        new_ip = data.get('new_ip')
+        
+        if not new_ip:
+            return JSONResponse(content={'error': 'No IP address provided'}, status_code=400)
 
-    with open('config.yaml', 'r') as file:
-        config = yaml.safe_load(file)
+        # Read the existing configuration
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
 
-    config['car_address'] = new_ip
+        # Update the car_address
+        config['car_address'] = new_ip
 
-    with open('config.yaml', 'w') as file:
-        yaml.safe_dump(config, file)
+        # Write the updated configuration back to the file
+        with open('config.yaml', 'w') as file:
+            yaml.safe_dump(config, file)
 
-    return jsonify({'message': 'IP address updated successfully', 'new_ip': new_ip})
+        return JSONResponse(content={'message': 'IP address updated successfully', 'new_ip': new_ip})
+    except Exception as e:
+        return JSONResponse(content={'error': str(e)}, status_code=500)
 
 # ================================
 # Car Endpoints
 # ================================
 
-@app.route('/health', methods=['GET'])
+@app.get('/health')
 def health_check():
     with open('config.yaml', 'r') as file:
         config = yaml.safe_load(file)
@@ -102,25 +117,23 @@ def health_check():
     try:
         response = requests.get(car_server_url)
         if response.status_code == 200:
-            return jsonify({'status': 'ok', 'message': 'Car server is live'}), 200
+            return JSONResponse(content={'status': 'ok', 'message': 'Car server is live'}, status_code=200)
         else:
-            return jsonify({'status': 'error', 'message': 'Car server is not reachable'}), response.status_code
+            return JSONResponse(content={'status': 'error', 'message': 'Car server is not reachable'}, status_code=response.status_code)
     except requests.exceptions.RequestException as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return JSONResponse(content={'status': 'error', 'message': str(e)}, status_code=500)
 
-@app.route('/camera/save_object', methods=['GET'])
-def save_object():
-    object_name = request.args.get('name')
-    if not object_name:
-        return "Missing 'name' parameter", 400
+@app.get('/camera/save_object')
+def save_object(name: str):
+    if not name:
+        raise HTTPException(status_code=400, detail="Missing 'name' parameter")
     try:
-        image_utils.capture_frame(frame_type="object", frame_name=f'{object_name}')
+        image_utils.capture_frame(frame_type="object", frame_name=name)
     except requests.exceptions.RequestException as e:
-        return str(e), 500
-    return f'{object_name} object saved successfully', 200
+        raise HTTPException(status_code=500, detail=str(e))
+    return PlainTextResponse(content=f'{name} object saved successfully', status_code=200)
 
-
-@app.route("/camera/locating_any_objects", tags=["Car Endpoints"])
+@app.get("/camera/locating_any_objects", tags=["Car Endpoints"])
 async def locate_and_align_object(object_label: str):
     if not object_label:
         raise HTTPException(status_code=400, detail="Missing 'object_label' parameter")
@@ -138,7 +151,7 @@ async def locate_and_align_object(object_label: str):
         count = 0
 
         num_of_aligns = constants['num_of_aligns']
-        max_search_attempts = constants['max_search_attempts']
+        max_search_attempts = config['retry_attempts']
         min_distance = constants['min_distance']
         alignment_threshold = constants['alignment_threshold']
         min_distance_forward_delay = constants['min_distance_forward_delay']
@@ -269,6 +282,7 @@ async def locate_and_align_object(object_label: str):
                         print("Moved Delay: ", moved_delay)
                         if (abs(search_result['centroid_x'] - frame_center) <= search_result['frame_width'] * alignment_threshold
                             and search_result['line_length'] <= min_distance):
+                            move_towards_object(search_result['line_length'])
                             prepare_for_pick_up(min_distance_forward_delay)
                             print("Object reached, centered, and minimum forward movement made. Stopping movement.")
                             break
@@ -288,14 +302,14 @@ async def locate_and_align_object(object_label: str):
     starting_point_label = constants['starting_point_label']
 
     # Locate and align the object using the second object label
-    #locate_and_align(starting_point_label)
+    locate_and_align(starting_point_label)
 
-    return jsonify({"status":"success"})
+    return JSONResponse(content={"status":"success"})
     # return JSONResponse(content={'first_result': desired_object_result, 'second_result': return_object_result})
 
-@app.route('/task/status', methods=['GET'])
+@app.get('/task/status')
 def get_task_status():
-    return jsonify(task_status)
+    return JSONResponse(task_status)
 
 # ================================
 # Main Execution

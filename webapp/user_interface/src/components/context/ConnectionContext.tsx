@@ -59,6 +59,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
       const data = await fetchIpAddress();
       if (data && data.current_ip) {
         setCurrentIpAddress(data.current_ip);
+        localStorage.setItem("currentIpAddress", data.current_ip);
       }
     };
     getIpAddress();
@@ -66,6 +67,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const handleConnectionCheck = async () => {
+      setIsConnecting(true);
       setIsConnected(false);
 
       if (currentIpAddress !== "") {
@@ -130,14 +132,13 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
         const healthData = await healthResponse.json();
         if (healthData.status === "ok") {
           connected = true;
-          setIsConnecting(false);
         }
       }
     } catch (error) {
       console.error("Error checking connection:", error);
     }
 
-    setIsConnecting(true);
+    setIsConnecting(false);
     setIsConnected(connected);
 
     if (!connected) {
@@ -147,7 +148,6 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     if (checkAttemptsRef.current >= 4) {
-      setIsConnecting(false);
       stopConnectionCheck();
     }
   };

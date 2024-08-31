@@ -36,8 +36,9 @@ class ObjectDetector:
                 box_width = x2 - x1
                 box_height = y2 - y1
 
+                print(f'Label = {label}')
                 # Check if the width is greater than the height
-                if object_label != "board":
+                if object_label != "Start":
                     if box_width > box_height:
                         continue  # Skip this detection if width is greater than height
 
