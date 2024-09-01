@@ -56,7 +56,8 @@ const Launch: React.FC = () => {
   const [isLaunched, setIsLaunched] = useState(false); // State to track if launched
   const [currentTask, setCurrentTask] = useState("");
   const [status, setStatus] = useState("");
-
+  const [isTaskEnded, setIsTaskEnded] = useState(false);
+  const [isSucceeded, setIsSucceeded] = useState(true);
   const promotionalTexts = [
     "Revolutionize retrieval with smart automation",
     "Boost efficiency with our autonomous car",
@@ -69,9 +70,9 @@ const Launch: React.FC = () => {
     "Upgrade to our advanced retrieval system",
     "Lead with the latest in smart technology",
   ];
+  let percentageInterval: NodeJS.Timeout | null = null;
+  let textInterval: NodeJS.Timeout | null = null;
   useEffect(() => {
-    let percentageInterval: NodeJS.Timeout | null = null;
-
     if (isLaunched && currentTask) {
       const fetchStatus = async () => {
         try {
@@ -81,32 +82,34 @@ const Launch: React.FC = () => {
           const data = await response.json();
           setPercentage(data.percentage_complete || 0);
           setStatus(data.status || "unknown");
+          if (data.finished === "success") {
+            setIsSucceeded(true);
+          } else {
+            setIsSucceeded(false);
+          }
         } catch (error) {
           console.error("Error fetching task status:", error);
         }
       };
 
-      // Fetch status immediately and then periodically
       fetchStatus();
       percentageInterval = setInterval(fetchStatus, 2000);
 
-      // Change the promotional text every 3 seconds
-      const textInterval = setInterval(() => {
+      textInterval = setInterval(() => {
         setTextIndex((prev) => (prev + 1) % promotionalTexts.length);
       }, 3000);
 
       return () => {
-        clearInterval(percentageInterval as NodeJS.Timeout);
-        clearInterval(textInterval);
+        if (percentageInterval) {
+          clearInterval(percentageInterval);
+        }
+        if (textInterval) {
+          clearInterval(textInterval);
+        }
       };
     }
-
-    return () => {
-      if (percentageInterval) {
-        clearInterval(percentageInterval);
-      }
-    };
   }, [isLaunched, currentTask, promotionalTexts.length]);
+
   useEffect(() => {
     if (currentStep === 3) {
       setIsStep3Visible(true);
@@ -114,6 +117,38 @@ const Launch: React.FC = () => {
       setIsStep3Visible(false);
     }
   }, [currentStep]);
+
+  const resetLaunchState = () => {
+    // Reset all the relevant states
+    setCurrentStep(1);
+    setSelectedTask(null);
+    setCustomTaskName("");
+    setCustomTaskInstructions("");
+    setLiveAudioStatus(true);
+    setLiveNotifications(true);
+    setRetryAttempts(20);
+    setLedStatus(true);
+    setShowSceneDescription(true);
+    setIsStep3Visible(false);
+    setPercentage(0);
+    setTextIndex(0);
+    setIsLaunched(false);
+    setCurrentTask("");
+    setStatus("");
+    setIsTaskEnded(false);
+    setIsSucceeded(true);
+
+    // Clear all intervals or timeouts
+    if (percentageInterval) {
+      clearInterval(percentageInterval);
+      percentageInterval = null;
+    }
+    if (textInterval) {
+      clearInterval(textInterval);
+      textInterval = null;
+    }
+  };
+
   const handleLaunchClick = async () => {
     try {
       const response = await fetch(
@@ -147,9 +182,9 @@ const Launch: React.FC = () => {
     console.log("Live Notifications:", liveNotifications);
     console.log("Retry Attempts:", retryAttempts);
     console.log("LED Status:", ledStatus);
-    setCurrentStep(3); // Move to the next step
-    // Randomly choose a status
+    setCurrentStep(3);
   };
+
   const updateRetryAttemptsOnServer = async (attempts: number) => {
     try {
       const response = await fetch(
@@ -172,12 +207,11 @@ const Launch: React.FC = () => {
       console.error("Error updating retry attempts:", error);
     }
   };
-  // const boxShadowValue = `${percentage * 0.25}px ${percentage * 0.5}px ${
-  //   percentage * 2.5
-  // }px white`;
+
   useEffect(() => {
     updateRetryAttemptsOnServer(retryAttempts);
   }, [retryAttempts]);
+
   useEffect(() => {
     if (status != "") {
       if (liveAudioStatus && window.speechSynthesis) {
@@ -196,6 +230,12 @@ const Launch: React.FC = () => {
       }
     }
   }, [status, liveAudioStatus, liveNotifications, toast]);
+
+  useEffect(() => {
+    if (percentage == 100) {
+      setIsTaskEnded(true);
+    }
+  }, [percentage]);
   return (
     <Flex
       flex={1}
@@ -756,7 +796,7 @@ const Launch: React.FC = () => {
                 <Button
                   colorScheme="teal"
                   size="lg"
-                  onClick={() => setCurrentStep(1)}
+                  onClick={resetLaunchState}
                   isDisabled={isLaunched}
                 >
                   Go Back to Task Selection
@@ -770,7 +810,7 @@ const Launch: React.FC = () => {
               w={"50%"}
               h={"100%"}
             >
-              {!isConnected && !isConnecting && false ? (
+              {!isConnected && !isConnecting ? (
                 <Flex
                   w="100%"
                   h="20%"
@@ -809,76 +849,111 @@ const Launch: React.FC = () => {
                     alignItems={"center"}
                   >
                     <Image
-                      src={"car.png"}
+                      borderWidth={5}
+                      borderColor="#001130"
+                      sx={
+                        isLaunched && isTaskEnded
+                          ? {
+                              boxShadow:
+                                "-2px 1px 20px 10px rgba(12, 143, 148, 1)",
+                            }
+                          : {
+                              opacity: isLaunched ? percentage / 100 : 1, // Conditionally set opacity
+                              transition: "opacity 3s ease",
+                            }
+                      }
+                      borderRadius={!isLaunched && isTaskEnded ? "full" : 0}
+                      src={
+                        isLaunched && isTaskEnded
+                          ? isSucceeded
+                            ? "success.jpeg"
+                            : "error.jpeg"
+                          : "car.png"
+                      }
                       w={"40vw"}
                       h={"55vh"}
-                      sx={{
-                        opacity: isLaunched ? percentage / 100 : 1, // Conditionally set opacity
-                        transition: "opacity 3s ease",
-                      }}
                     />
                   </Flex>
 
-                  <Flex
-                    flex={2}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    flexDir={"column"}
-                  >
-                    {!isLaunched ? (
-                      <Flex
-                        w={"100%"}
-                        flexDir={"row"}
-                        justifyContent={"center"}
-                        alignItems={"center"}
-                        mb={4}
-                      >
-                        <Button
-                          leftIcon={<Icon as={FaRocket} />}
-                          colorScheme="teal"
-                          onClick={handleLaunchClick}
-                        >
-                          Launch
-                        </Button>
-                      </Flex>
-                    ) : (
-                      <>
+                  {!isTaskEnded ? (
+                    <Flex
+                      flex={2}
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                      flexDir={"column"}
+                    >
+                      {!isLaunched ? (
                         <Flex
                           w={"100%"}
                           flexDir={"row"}
-                          justifyContent={"space-between"}
+                          justifyContent={"center"}
+                          alignItems={"center"}
                           mb={4}
                         >
-                          <Text
-                            fontSize="2xl"
-                            fontWeight="bold"
-                            textAlign="center"
-                            transition="opacity 3s ease"
+                          <Button
+                            leftIcon={<Icon as={FaRocket} />}
+                            colorScheme="teal"
+                            onClick={handleLaunchClick}
                           >
-                            {promotionalTexts[textIndex]}
-                          </Text>
-                          <Text
-                            fontSize="xl"
-                            fontWeight="bold"
-                            color="white" // High contrast for better visibility
-                            mb={4}
-                            textAlign="center"
-                          >
-                            {percentage}%
-                          </Text>
+                            Launch
+                          </Button>
                         </Flex>
+                      ) : (
+                        <>
+                          <Flex
+                            w={"100%"}
+                            flexDir={"row"}
+                            justifyContent={"space-between"}
+                            mb={4}
+                          >
+                            <Text
+                              fontSize="2xl"
+                              fontWeight="bold"
+                              textAlign="center"
+                              transition="opacity 3s ease"
+                            >
+                              {promotionalTexts[textIndex]}
+                            </Text>
+                            <Text
+                              fontSize="xl"
+                              fontWeight="bold"
+                              color="white" // High contrast for better visibility
+                              mb={4}
+                              textAlign="center"
+                            >
+                              {percentage}%
+                            </Text>
+                          </Flex>
 
-                        <Progress
-                          size="lg"
-                          value={percentage}
-                          colorScheme="teal" // Vibrant color scheme
-                          width="100%" // Adjusted width for alignment
-                          borderRadius="md" // Rounded corners for the progress bar
-                          boxShadow="md" // Shadow for depth on the progress bar
-                        />
-                      </>
-                    )}
-                  </Flex>
+                          <Progress
+                            size="lg"
+                            value={percentage}
+                            colorScheme="teal" // Vibrant color scheme
+                            width="100%" // Adjusted width for alignment
+                            borderRadius="md" // Rounded corners for the progress bar
+                            boxShadow="md" // Shadow for depth on the progress bar
+                          />
+                        </>
+                      )}
+                    </Flex>
+                  ) : (
+                    <Flex
+                      flex={2}
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                      flexDir={"column"}
+                    >
+                      <Button
+                        colorScheme={isSucceeded ? "green" : "red"}
+                        size="lg"
+                        onClick={() => {
+                          resetLaunchState();
+                        }}
+                      >
+                        {isSucceeded ? " Task Completed" : "Try again"}
+                      </Button>
+                    </Flex>
+                  )}
                 </Flex>
               )}
             </Flex>
