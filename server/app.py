@@ -145,6 +145,7 @@ async def locate_and_align_object(object_label: str):
         min_distance_forward_delay = constants['min_distance_forward_delay']
         move_forward_delay = constants['move_forward_delay']
         align_left_right_delay = constants['align_left_right_delay']
+        align_right_before_forward_delay = constants['align_right_before_forward_delay']
         search_left_delay = constants['search_left_delay']
         half_circle_delay = constants['180_degree_turn_delay']
 
@@ -206,12 +207,18 @@ async def locate_and_align_object(object_label: str):
                 adjusted_delay = calculate_delay(move_forward_delay, line_length, min_distance)
             else:
                 adjusted_delay = min_distance_forward_delay
-            
+                
+            move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay={align_right_before_forward_delay}')
+            if move_response.status_code != 200:
+                print(f"Moving towards item - Failed to align car to the right: {move_response.status_code}, Attempted delay: {align_right_before_forward_delay}")
+            else:
+                print(f"Moving towards item - Moved to the right with delay: {align_right_before_forward_delay}")
+                
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={adjusted_delay}')
             if move_response.status_code != 200:
                 print(f"Moving towards item - Failed to move car forward: {move_response.status_code}, Attempted delay: {adjusted_delay}")
             else:
-                print(f"Moved forward with delay: {adjusted_delay}")
+                print(f"Moving towards item - Moved forward with delay: {adjusted_delay}")
             
             return adjusted_delay
         
