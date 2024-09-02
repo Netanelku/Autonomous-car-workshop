@@ -81,8 +81,8 @@ const Launch: React.FC = () => {
           );
           const data = await response.json();
           setPercentage(data.percentage_complete || 0);
-          setStatus(data.status || "unknown");
-          if (data.finished === "success") {
+          setStatus(data.event || "unknown");
+          if (data.status === "success") {
             setIsSucceeded(true);
           } else {
             setIsSucceeded(false);

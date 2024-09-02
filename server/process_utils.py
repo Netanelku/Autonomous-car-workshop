@@ -2,6 +2,7 @@ import requests
 import image_utils
 from object_detector import ObjectDetector
 import yaml
+import time
 
 def update_task_status(task_id: str, status: str, percentage: int, object_label: str = None, result: str = None):
     try:
@@ -9,11 +10,12 @@ def update_task_status(task_id: str, status: str, percentage: int, object_label:
             tasks = yaml.safe_load(file)
         if 'tasks' not in tasks:
             tasks['tasks'] = {}
+        
         tasks['tasks'][task_id] = {
             'status': status,
             'object_label': object_label,
             'result': result,
-            'percentage': percentage,
+            'percentage':  tasks['tasks'][task_id]["percentage"]+percentage,
             'retry_attempts': tasks['tasks'].get(task_id, {}).get('retry_attempts', 0)
         }
         with open('tasks.yaml', 'w') as file:
@@ -27,14 +29,18 @@ def locate_and_align_object(task_id, object_label, config, constants):
     detector = ObjectDetector()
     count = 0
     num_of_aligns = constants['num_of_aligns']
-    max_search_attempts = config['retry_attempts']
+    num_of_divisions_for_backward_delay = constants['num_of_divisions_for_backward_delay']
+    max_search_attempts = constants['max_search_attempts']
     min_distance = constants['min_distance']
     alignment_threshold = constants['alignment_threshold']
     min_distance_forward_delay = constants['min_distance_forward_delay']
     move_forward_delay = constants['move_forward_delay']
     align_left_right_delay = constants['align_left_right_delay']
+    align_right_before_forward_delay = constants['align_right_before_forward_delay']
+    extra_turn_left_for_start_object_delay = constants['extra_turn_left_for_start_object_delay']
     search_left_delay = constants['search_left_delay']
     half_circle_delay = constants['180_degree_turn_delay']
+    starting_point_label = constants['starting_point_label']
 
     def move_to_search_object():
         response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')
@@ -79,10 +85,16 @@ def locate_and_align_object(task_id, object_label, config, constants):
 
     def move_towards_object(line_length):
         adjusted_delay = calculate_delay(move_forward_delay, line_length) if line_length > min_distance else min_distance_forward_delay
-        response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={adjusted_delay}')
-        if response.status_code != 200:
-            print(f"Failed to move car forward: {response.status_code}, Attempted delay: {adjusted_delay}")
-        return adjusted_delay
+        move_response = requests.get(f'http://{car_address}/manualDriving?dir=right&delay={align_right_before_forward_delay}')
+        if move_response.status_code != 200:
+            print(f"Moving towards item - Failed to align car to the right: {move_response.status_code}, Attempted delay: {align_right_before_forward_delay}")
+        else:
+            print(f"Moving towards item - Moved to the right with delay: {align_right_before_forward_delay}")  
+        move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={adjusted_delay}')
+        if move_response.status_code != 200:
+            print(f"Moving towards item - Failed to move car forward: {move_response.status_code}, Attempted delay: {adjusted_delay}")
+        else:
+            print(f"Moving towards item - Moved forward with delay: {adjusted_delay}")
 
     def search_after_movement():
         for i in range(num_of_aligns):
@@ -100,14 +112,22 @@ def locate_and_align_object(task_id, object_label, config, constants):
         if response.status_code != 200:
             print(f"Failed to move car backward: {response.status_code}, Attempted delay: {min_distance_forward_delay}")
 
-    def prepare_for_pick_up(backward_delay):
-        response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')
-        if response.status_code != 200:
-            print("Failed to move car for half circle:", response.status_code)
-        response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay}')
-        if response.status_code != 200:
-            print("Failed to move car backward:", response.status_code)
-
+    def prepare_for_pick_up(backward_delay, object_label):
+            if object_label == starting_point_label:
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay + extra_turn_left_for_start_object_delay}')                
+            else:
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')
+                 
+            if move_response.status_code != 200:
+                        print("Failed to move car for a half of circle:", move_response.status_code)
+                                           
+            divided_backward_delay = int(backward_delay/num_of_divisions_for_backward_delay)   
+            for i in range(num_of_divisions_for_backward_delay):         
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={divided_backward_delay}')
+                if move_response.status_code != 200:
+                    print("Moving towards item - Failed to move car backward:", move_response.status_code)    
+                time.sleep(1)
+    
     try:
         search_result = search_for_object()
         if not search_result['found']:
@@ -119,13 +139,12 @@ def locate_and_align_object(task_id, object_label, config, constants):
             while True:
                 align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['line_length'])
                 if align_result['aligned']:
-                    moved_delay = move_towards_object(search_result['line_length'])
-                    
+                    move_towards_object(search_result['line_length'])
                     new_search_result = search_after_movement()
                     if not new_search_result['found']:
                         move_backward()
-                        prepare_for_pick_up(min_distance_forward_delay * 3)
-                        update_task_status(task_id, 'completed', 100, object_label, 'Object successfully picked up')
+                        prepare_for_pick_up(min_distance_forward_delay * 3,object_label)
+                        update_task_status(task_id, '', 25, object_label, 'Object successfully picked up')
                         break
                     search_result = new_search_result
                     
@@ -133,8 +152,8 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     if (abs(search_result['centroid_x'] - frame_center) <= search_result['frame_width'] * alignment_threshold
                         and search_result['line_length'] <= min_distance):
                         move_towards_object(search_result['line_length'])
-                        prepare_for_pick_up(min_distance_forward_delay)
-                        update_task_status(task_id, 'completed', 100, object_label, 'Object successfully picked up')
+                        prepare_for_pick_up(min_distance_forward_delay*2,object_label)
+                        update_task_status(task_id, '', 25, object_label, 'Object successfully picked up')
                         break
                 else:
                     print("Alignment failed. Retrying.")

@@ -138,9 +138,9 @@ def get_task_status(task_id: str):
         # Update the status to the latest event description
         if 'events' in task and task['events']:
             latest_event_details = get_latest_event(task['events'])
-            task['status'] = latest_event_details
+            task['event'] = latest_event_details
         else:
-            task['status'] = "No events found"
+            task['event'] = "No events found"
         
         return JSONResponse(content=task)
     except Exception as e:
@@ -149,34 +149,6 @@ def get_task_status(task_id: str):
 # ================================
 # Car Endpoints
 # ================================
-
-def update_task_status(task_id: str, status: str, percentage: int, object_label: str = None, result: str = None):
-    """
-    Updates the status of a specific task.
-    """
-    try:
-        # Load existing tasks
-        with open('tasks.yaml', 'r') as file:
-            tasks = yaml.safe_load(file)
-
-        if 'tasks' not in tasks:
-            tasks['tasks'] = {}
-
-        # Update task status
-        tasks['tasks'][task_id] = {
-            'status': status,
-            'object_label': object_label,
-            'result': result,
-            'percentage': percentage,
-            'retry_attempts': tasks['tasks'].get(task_id, {}).get('retry_attempts', 0)  # Keep existing retry attempts
-        }
-
-        # Save updated tasks
-        with open('tasks.yaml', 'w') as file:
-            yaml.safe_dump(tasks, file)
-
-    except Exception as e:
-        print(f"Error updating task status: {e}")
 
 @app.get('/health', tags=['Health Check'])
 def health_check():
@@ -260,15 +232,15 @@ async def locate_and_align_object_endpoint(target_object_id: str):
     except Exception as e:
         return JSONResponse(content={'error': f'Failed to create task: {str(e)}'}, status_code=500)
     
-    # # Locate and align the target object
-    # search_result = locate_and_align_object(task_id, target_object_label, config, constants)
-    # if not search_result['found']:
-    #     return JSONResponse(content={'found': False, 'task_id': task_id})
+    # Locate and align the target object
+    search_result = locate_and_align_object(task_id, target_object_label, config, constants)
+    if not search_result['found']:
+        return JSONResponse(content={'found': False, 'task_id': task_id})
 
-    # # Locate and align the starting point
-    # starting_point_label = constants['starting_point_label']
-    # locate_and_align_object(task_id, starting_point_label, config, constants)
-
+    # Locate and align the starting point
+    starting_point_label = constants['starting_point_label']
+    locate_and_align_object(task_id, starting_point_label, config, constants)
+    
     return JSONResponse(content={'status': 'started', 'task_id': task_id, 'target_object_label': target_object_label})
 
 # ================================
