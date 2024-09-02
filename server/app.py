@@ -139,6 +139,7 @@ async def locate_and_align_object(object_label: str):
         count = 0
 
         num_of_aligns = constants['num_of_aligns']
+        num_of_divisions_for_backward_delay = constants['num_of_divisions_for_backward_delay']
         max_search_attempts = constants['max_search_attempts']
         min_distance = constants['min_distance']
         alignment_threshold = constants['alignment_threshold']
@@ -146,8 +147,10 @@ async def locate_and_align_object(object_label: str):
         move_forward_delay = constants['move_forward_delay']
         align_left_right_delay = constants['align_left_right_delay']
         align_right_before_forward_delay = constants['align_right_before_forward_delay']
+        extra_turn_left_for_start_object_delay = constants['extra_turn_left_for_start_object_delay']
         search_left_delay = constants['search_left_delay']
         half_circle_delay = constants['180_degree_turn_delay']
+        starting_point_label = constants['starting_point_label']
 
         def move_to_search_object():
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')
@@ -245,13 +248,21 @@ async def locate_and_align_object(object_label: str):
             if move_response.status_code != 200:
                 print(f"Failed to move car backward: {move_response.status_code}, Attempted delay: {min_distance_forward_delay}")                     
                 
-        def prepare_for_pick_up(backward_delay):
-            move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')
+        def prepare_for_pick_up(backward_delay, object_label):
+            if object_label == starting_point_label:
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay + extra_turn_left_for_start_object_delay}')                
+            else:
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay}')
+                 
             if move_response.status_code != 200:
-                    print("Failed to move car for a half of circle:", move_response.status_code)     
-            move_response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay}')
-            if move_response.status_code != 200:
-                print("Moving towards item - Failed to move car backward:", move_response.status_code)              
+                        print("Failed to move car for a half of circle:", move_response.status_code)
+                                           
+            divided_backward_delay = int(backward_delay/num_of_divisions_for_backward_delay)   
+            for i in range(num_of_divisions_for_backward_delay):         
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={divided_backward_delay}')
+                if move_response.status_code != 200:
+                    print("Moving towards item - Failed to move car backward:", move_response.status_code)    
+                time.sleep(1)              
 
         try:
             search_result = search_for_object()
@@ -266,8 +277,8 @@ async def locate_and_align_object(object_label: str):
                         
                         new_search_result = search_after_movement()
                         if not new_search_result['found']:
-                            backward()
-                            prepare_for_pick_up(min_distance_forward_delay * 3)
+                            backward()                       
+                            prepare_for_pick_up(min_distance_forward_delay * 3, object_label)
                             print(f'After {num_of_aligns} tries of searching - Object reached, centered, and minimum forward movement made. Stopping movement.')
                             break
                         search_result = new_search_result
@@ -278,7 +289,7 @@ async def locate_and_align_object(object_label: str):
                         print("Moved Delay: ", moved_delay)
                         if (abs(search_result['centroid_x'] - frame_center) <= search_result['frame_width'] * alignment_threshold
                             and search_result['line_length'] <= min_distance):
-                            prepare_for_pick_up(min_distance_forward_delay)
+                            prepare_for_pick_up(min_distance_forward_delay * 2, object_label)
                             print("Object reached, centered, and minimum forward movement made. Stopping movement.")
                             break
                     else:

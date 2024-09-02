@@ -2,6 +2,7 @@
 
 # New constant variables
 num_of_aligns: 1
+num_of_divisions_for_backward_delay: 3
 max_search_attempts: 10
 min_distance: 25
 alignment_threshold: 0.3 # 30% of frame width for alignment
@@ -9,8 +10,9 @@ min_distance_forward_delay: 250
 move_forward_delay: 450
 align_left_right_delay: 100
 align_right_before_forward_delay: 20 
+extra_turn_left_for_start_object_delay: 50
 search_left_delay: 150
-180_degree_turn_delay: 700
+180_degree_turn_delay: 720
 
 # Object Label for the starting point
 starting_point_label: "Start"
