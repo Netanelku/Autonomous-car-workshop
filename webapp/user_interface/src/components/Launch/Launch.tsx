@@ -43,7 +43,7 @@ const Launch: React.FC = () => {
   const [customTaskInstructions, setCustomTaskInstructions] = useState("");
   const [liveAudioStatus, setLiveAudioStatus] = useState(true);
   const [liveNotifications, setLiveNotifications] = useState(true);
-  const [retryAttempts, setRetryAttempts] = useState(20);
+  const [retryAttempts, setRetryAttempts] = useState(10);
   const [ledStatus, setLedStatus] = useState(true);
   const [showSceneDescription, setShowSceneDescription] = useState(true);
   const [isStep3Visible, setIsStep3Visible] = useState(false);
@@ -142,26 +142,6 @@ const Launch: React.FC = () => {
   }, [currentStep]);
 
   const resetLaunchState = () => {
-    // Reset all the relevant states
-    setCurrentStep(1);
-    setSelectedTask(null);
-    setCustomTaskName("");
-    setCustomTaskInstructions("");
-    setLiveAudioStatus(true);
-    setLiveNotifications(true);
-    setRetryAttempts(20);
-    setLedStatus(true);
-    setShowSceneDescription(true);
-    setIsStep3Visible(false);
-    setPercentage(0);
-    setTextIndex(0);
-    setIsLaunched(false);
-    setCurrentTask("");
-    setStatus("");
-    setIsTaskEnded(false);
-    setIsSucceeded(true);
-
-    // Clear all intervals or timeouts
     if (percentageInterval) {
       clearInterval(percentageInterval);
       percentageInterval = null;
@@ -170,6 +150,27 @@ const Launch: React.FC = () => {
       clearInterval(textInterval);
       textInterval = null;
     }
+
+    // Add a delay before resetting the states
+    setTimeout(() => {
+      setCurrentStep(1);
+      setSelectedTask(null);
+      setCustomTaskName("");
+      setCustomTaskInstructions("");
+      setLiveAudioStatus(true);
+      setLiveNotifications(true);
+      setRetryAttempts(20);
+      setLedStatus(true);
+      setShowSceneDescription(true);
+      setIsStep3Visible(false);
+      setPercentage(0);
+      setTextIndex(0);
+      setIsLaunched(false);
+      setCurrentTask("");
+      setStatus("");
+      setIsTaskEnded(false);
+      setIsSucceeded(true);
+    }, 2000); // Adjust the delay time (1000ms = 1 second) as needed
   };
 
   const handleLaunchClick = async () => {
@@ -513,8 +514,8 @@ const Launch: React.FC = () => {
                     Retry Attempts: {retryAttempts}
                   </Text>
                   <Slider
-                    min={20}
-                    max={30}
+                    min={5}
+                    max={15}
                     value={retryAttempts}
                     onChange={(value) => setRetryAttempts(value)}
                   >
