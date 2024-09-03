@@ -34,18 +34,18 @@ def capture_frame(frame_type,frame_name=""):
     car_address = config['car_address']
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
-    print('Fetching image from car address...')
+    #print('Fetching image from car address...')
     try: 
         requests.get(f'http://{car_address}/ledon')
         time.sleep(1.5)
         response = requests.get(f'http://{car_address}/left')
         requests.get(f'http://{car_address}/ledoff')
-        print('image fetched')
+        #print('image fetched')
         if response.status_code == 200:
             image_data = response.content
             image_np = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
             if image_np is not None:
-                    print('Image successfully fetched and decoded.')         
+                    #print('Image successfully fetched and decoded.')         
                     rotated_image = rotate_image(image_np)
                     # gray_image = cv2.cvtColor(rotated_image, cv2.COLOR_BGR2GRAY)        
                     image_path = os.path.join(save_directory,image_filename)

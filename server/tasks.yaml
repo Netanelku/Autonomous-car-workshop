@@ -1012,3 +1012,129 @@ tasks:
     repeats: 0/20
     result: null
     status: finish2
+  9da7d923-fa3c-4882-afba-c08cf8b3f7f6:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:32:59.657396Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:33:01.073042Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:33:48.920584Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  1ae9ac70-ed2e-4e81-b1e5-a598fe5b6de0:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:42:32.024617Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:42:33.335060Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:44:02.098002Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  e60ae2b9-362b-4527-971a-f5537f4a4de1:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:50:09.360571Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:50:11.145697Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:52:02.971107Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  c7e96044-20f4-4d5c-a612-8181678dee88:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:56:05.450110Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:56:07.349328Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:56:58.503083Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  816fef57-0d3a-4944-a5b0-38766d522c51:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T18:05:56.151631Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T18:05:57.962544Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-03T18:07:10.645805Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  d6ac3f5d-10fa-4bb9-ae97-b4edefadae31:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T18:09:20.235326Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T18:09:21.270192Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-03T18:10:56.646045Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  7838450b-4fdd-4f2a-8e4d-1acce422f8e2:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T18:24:22.046027Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T18:24:23.298999Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-03T18:26:42.211685Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1

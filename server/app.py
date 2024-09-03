@@ -271,7 +271,7 @@ async def start_task_endpoint(task_id: str):
 
         print(f"Starting task for locating the object: {task['object_label']}")
         # Locate and align the target object
-        search_result = await locate_and_align_object(task_id, task['object_label'], config, constants)
+        search_result = locate_and_align_object(task_id, task['object_label'], config, constants)
         if not search_result['found']:
             task['status'] = 'finish2'
             task['events'].append({
@@ -288,9 +288,9 @@ async def start_task_endpoint(task_id: str):
 
         # Locate and align the starting point
         starting_point_label = constants['starting_point_label']
-        alignment_result = await locate_and_align_object(task_id, starting_point_label, config, constants)
+        alignment_result = locate_and_align_object(task_id, starting_point_label, config, constants)
 
-        if alignment_result['success']:
+        if alignment_result['found']:
             # If successful, update the task status to 'success'
             task['status'] = 'finish1'
             task['events'].append({

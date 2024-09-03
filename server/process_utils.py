@@ -115,13 +115,14 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     
                     if move_to_next_iteration:
                         continue  # Continue to the next iteration of the while loop
-
+                elif backward_delay > 0:
+                    move_backward_with_delay(backward_delay)
+                    time.sleep(1)                                   
                 move_to_search_object()
             except requests.exceptions.RequestException as e:
                 print("Error:", e)
-                break
-            print(f"Object not found at attempt {count}.")
-            return {'found': False}
+                print(f"Object not found at attempt {count}.")
+                return {'found': False}
 
 
     def calculate_delay(base_delay, line_length):
@@ -175,7 +176,9 @@ def locate_and_align_object(task_id, object_label, config, constants):
     def move_backward_with_delay(backward_delay):
         response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay}')
         if response.status_code != 200:
-            print(f"Failed to move car backward: {response.status_code}, Attempted delay: {backward_delay}")        
+            print(f"Failed to move car backward: {response.status_code}, Attempted delay: {backward_delay}")
+        else:
+            print(f"Moved backward with delay: {backward_delay}")            
 
     def prepare_for_pick_up(backward_delay):        
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay + extra_turn_left_delay}')                        
@@ -194,6 +197,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
         search_result = search_for_object()
         print("Search result:")
         if not search_result['found']:
+            print("Object not found")
             return {'found': False}
         if object_label != "Start":
             # Detected the target object and started moving towards it to retrieve
@@ -201,7 +205,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
         else:
             # Detected the return point and started moving towards it with the object to bring it to its place
             update_task_status(task_id, 'running', 25, object_label, "Moving towards the return point with the object")
-
+        print("Object found")
         if search_result['found']:
             while True:
                 print("Aligning with object")
@@ -235,9 +239,9 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         break
                 else:
                     print("Alignment failed. Retrying.")
-            return {**search_result, **align_result,"result1":True}
+            return {**search_result, **align_result, 'found':True}
     except:
-        return {**search_result, **align_result}
+        return {**search_result, **align_result, 'found':False}
 
     finally:
         requests.get(f'http://{car_address}/ledoff')
