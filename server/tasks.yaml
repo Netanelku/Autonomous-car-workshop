@@ -805,3 +805,210 @@ tasks:
     repeats: 0/20
     result: null
     status: running
+  3dddf8f7-fdc8-4851-9eb1-63bec3fbf952:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T16:52:58.041556Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T16:52:58.325048Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  40c97b7c-30b1-46f8-a87a-6ea6eed4344c:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T16:57:00.486456Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T16:57:00.765883Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  e7650b0b-69be-4089-9cb6-53e8e12dbd58:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T16:59:08.958513Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T16:59:09.263398Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  968127c6-3487-4dbb-ba68-c2da48db559f:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:08:44.613054Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:08:44.960335Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:09:32.297277Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  469c8de4-6013-4f8f-af62-f9cd72e8f5f3:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:09:32.390821Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:09:32.851382Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:10:18.635064Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  23d83f02-08cc-4aa3-89a0-24706da540bc:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:11:52.576434Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:11:52.995809Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:12:40.482124Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  f84edae8-5cad-4621-adb7-48aed70a1040:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:16:16.055315Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:16:16.389494Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:17:04.129367Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  2f7bb540-1a39-424f-a5c5-16abfd2bd852:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:17:41.486081Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:17:41.872465Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:18:30.515558Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  44a10d69-b002-4d41-9552-1f35533e9937:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:22:33.572131Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:22:34.245582Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:23:22.426298Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  6b0348bd-fef7-486a-8c2a-88d80a546a42:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:25:07.677652Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:25:08.249103Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:25:54.899939Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  bf3b1b3c-760c-4c7d-a7d9-f045e475f54c:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:26:47.970382Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:26:48.511703Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:27:38.240816Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  9fb3d8e5-78cb-480e-addb-f7d74940a338:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T17:28:26.753964Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T17:28:27.240252Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-03T17:29:14.326641Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2

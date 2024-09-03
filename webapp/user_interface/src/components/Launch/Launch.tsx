@@ -81,15 +81,38 @@ const Launch: React.FC = () => {
           );
           const data = await response.json();
           setPercentage(data.percentage_complete || 0);
-          setStatus(data.event || "unknown");
+          setStatus(data.event || "");
+          console.log("asassa", data);
           if (data.status === "success") {
             setIsSucceeded(true);
           } else {
             setIsSucceeded(false);
           }
+          if (data.status == "finish1") {
+            console.log("aaaa");
+            setIsTaskEnded(true);
+            setIsSucceeded(true);
+          } else if (data.status == "finish2") {
+            console.log("bbb");
+            setIsTaskEnded(true);
+            setIsSucceeded(false);
+          }
         } catch (error) {
+          console.log("cccc");
+          setIsSucceeded(false);
+          setIsTaskEnded(true);
+          setPercentage(100);
           console.error("Error fetching task status:", error);
         }
+
+        console.log(
+          "isTaskEnded",
+          isTaskEnded,
+          "isSucceeded",
+          isSucceeded,
+          "isLaunched",
+          isLaunched
+        );
       };
 
       fetchStatus();
@@ -186,7 +209,14 @@ const Launch: React.FC = () => {
     console.log("LED Status:", ledStatus);
     setCurrentStep(3);
   };
-
+  console.log(
+    "isTaskEnded",
+    isTaskEnded,
+    "isSucceeded",
+    isSucceeded,
+    "isLaunched",
+    isLaunched
+  );
   const updateRetryAttemptsOnServer = async (attempts: number) => {
     try {
       const response = await fetch(
@@ -812,7 +842,7 @@ const Launch: React.FC = () => {
               w={"50%"}
               h={"100%"}
             >
-              {!isConnected && !isConnecting ? (
+              {!isConnected ? (
                 <Flex
                   w="100%"
                   h="20%"
@@ -866,7 +896,7 @@ const Launch: React.FC = () => {
                       }
                       borderRadius={!isLaunched && isTaskEnded ? "full" : 0}
                       src={
-                        isLaunched && isTaskEnded
+                        isTaskEnded
                           ? isSucceeded
                             ? "success.jpeg"
                             : "error.jpeg"

@@ -195,8 +195,12 @@ def locate_and_align_object(task_id, object_label, config, constants):
         print("Search result:")
         if not search_result['found']:
             return {'found': False}
-
-        update_task_status(task_id, 'running', 25, object_label)
+        if object_label != "Start":
+            # Detected the target object and started moving towards it to retrieve
+            update_task_status(task_id, 'running', 25, object_label, "Moving towards the target object for retrieval")
+        else:
+            # Detected the return point and started moving towards it with the object to bring it to its place
+            update_task_status(task_id, 'running', 25, object_label, "Moving towards the return point with the object")
 
         if search_result['found']:
             while True:
@@ -208,7 +212,12 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     if not new_search_result['found']:
                         move_backward()
                         prepare_for_pick_up(min_distance_forward_delay * 3)
-                        update_task_status(task_id, '', 25, object_label, 'Object successfully picked up')
+                        if object_label != "Start":
+                            # Arrived at the object and picked it up successfully
+                            update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                        else:
+                            # Arrived at the return point and successfully dropped the object at its place
+                            update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
                         break
                     search_result = new_search_result
                     
@@ -217,10 +226,18 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         and search_result['line_length'] <= min_distance):
                         move_towards_object(search_result['line_length'])
                         prepare_for_pick_up(min_distance_forward_delay * 2)
-                        update_task_status(task_id, '', 25, object_label, 'Object successfully picked up')
+                        if object_label != "Start":
+                            # Arrived at the object and picked it up successfully
+                            update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                        else:
+                            # Arrived at the return point and successfully dropped the object at its place
+                            update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
                         break
                 else:
                     print("Alignment failed. Retrying.")
+            return {**search_result, **align_result,"result1":True}
+    except:
         return {**search_result, **align_result}
+
     finally:
         requests.get(f'http://{car_address}/ledoff')

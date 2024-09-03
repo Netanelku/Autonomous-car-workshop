@@ -271,9 +271,9 @@ async def start_task_endpoint(task_id: str):
 
         print(f"Starting task for locating the object: {task['object_label']}")
         # Locate and align the target object
-        search_result = locate_and_align_object(task_id, task['object_label'], config, constants)
+        search_result = await locate_and_align_object(task_id, task['object_label'], config, constants)
         if not search_result['found']:
-            task['status'] = 'failed'
+            task['status'] = 'finish2'
             task['events'].append({
                 'action': 'task_failed',
                 'timestamp': datetime.utcnow().isoformat() + 'Z',
@@ -288,11 +288,11 @@ async def start_task_endpoint(task_id: str):
 
         # Locate and align the starting point
         starting_point_label = constants['starting_point_label']
-        alignment_result = locate_and_align_object(task_id, starting_point_label, config, constants)
+        alignment_result = await locate_and_align_object(task_id, starting_point_label, config, constants)
 
         if alignment_result['success']:
             # If successful, update the task status to 'success'
-            task['status'] = 'success'
+            task['status'] = 'finish1'
             task['events'].append({
                 'action': 'task_completed',
                 'timestamp': datetime.utcnow().isoformat() + 'Z',
@@ -300,7 +300,7 @@ async def start_task_endpoint(task_id: str):
             })
         else:
             # If not successful, update the task status to 'failed'
-            task['status'] = 'failed'
+            task['status'] = 'finish2'
             task['events'].append({
                 'action': 'task_failed',
                 'timestamp': datetime.utcnow().isoformat() + 'Z',
@@ -314,6 +314,16 @@ async def start_task_endpoint(task_id: str):
         return JSONResponse(content={'status': task['status'], 'task_id': task_id, 'target_object_label': task['object_label']})
     
     except Exception as e:
+        task['status'] = 'finish2'
+        task['events'].append({
+                'action': 'task_failed',
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'details': 'Failed to align with the starting point.',
+            })
+
+        # Save updated tasks with the final status
+        with open('tasks.yaml', 'w') as file:
+            yaml.safe_dump(tasks, file)
         return JSONResponse(content={'error': f'Failed to start task: {str(e)}'}, status_code=500)
 
 
