@@ -152,17 +152,19 @@ const Launch: React.FC = () => {
   const handleLaunchClick = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8080/camera/locating_any_objects?target_object_id=${selectedTask.id}`
+        `http://127.0.0.1:8080/car/create_task?target_object_id=${selectedTask.id}`
+      );
+      const data = await response.json();
+      console.log(data.task_id);
+      setCurrentTask(data.task_id);
+      setIsLaunched(true);
+      const response1 = await fetch(
+        `http://127.0.0.1:8080/car/start_task?task_id=${data.task_id}`
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!response1.ok) {
+        throw new Error(`HTTP error! Status: ${response1.status}`);
       }
-
-      const data = await response.json();
-      setCurrentTask(data.task_id);
-      console.log(data.task_id);
-      setIsLaunched(true);
     } catch (error) {
       console.error("Error during fetch:", error);
     }

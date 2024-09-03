@@ -3,6 +3,8 @@ import image_utils
 from object_detector import ObjectDetector
 import yaml
 import time
+from datetime import datetime
+
 
 def update_task_status(task_id: str, status: str, percentage: int, object_label: str = None, result: str = None):
     try:
@@ -11,13 +13,33 @@ def update_task_status(task_id: str, status: str, percentage: int, object_label:
         if 'tasks' not in tasks:
             tasks['tasks'] = {}
         
-        tasks['tasks'][task_id] = {
+        # Retrieve existing task or create a new one if it doesn't exist
+        task = tasks['tasks'].get(task_id, {
             'status': status,
             'object_label': object_label,
             'result': result,
-            'percentage':  tasks['tasks'][task_id]["percentage"]+percentage,
-            'retry_attempts': tasks['tasks'].get(task_id, {}).get('retry_attempts', 0)
+            'percentage_complete': 0,
+            'repeats': '0/20',
+            'events': []
+        })
+
+        # Update task details
+        task['status'] = status
+        task['object_label'] = object_label if object_label else task.get('object_label')
+        task['result'] = result
+        task['percentage_complete'] = task.get('percentage_complete', 0) + percentage
+
+        # Add an event to the task
+        event = {
+            'action': status,
+            'details': result if result else 'Status updated',
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'attempt': task.get('repeats', '0/20').split('/')[0]
         }
+        task['events'].append(event)
+
+        # Save the updated task
+        tasks['tasks'][task_id] = task
         with open('tasks.yaml', 'w') as file:
             yaml.safe_dump(tasks, file)
     except Exception as e:

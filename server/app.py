@@ -181,37 +181,38 @@ def save_object(name: str):
         raise HTTPException(status_code=500, detail=str(e))
     return PlainTextResponse(content=f'{name} object saved successfully', status_code=200)
 
-@app.get('/camera/locating_any_objects', tags=['Main Operation'])
-async def locate_and_align_object_endpoint(target_object_id: str):
+@app.post('/car/create_task', tags=['Main Operation'])
+async def create_task_endpoint(target_object_id: str):
     """
-    Endpoint to locate and align the target object, and then locate the starting point.
+    Endpoint to create a task for locating and aligning the target object.
     """
     # Load constants and config
-    config, constants = load_config()
-    target_object_label=""
+    target_object_label = ""
+
     if target_object_id not in ['1', '2', '3']:
         return JSONResponse(content={'error': 'Invalid target_object_id'}, status_code=400)
 
     # Generate a unique task ID
     task_id = str(uuid.uuid4())
-    if int(target_object_id)==1:
-        target_object_label="can"
-    elif int(target_object_id)==2:
-        target_object_label="bottle"
-    elif int(target_object_id)==3:
-        target_object_label="deodorant"
+    if int(target_object_id) == 1:
+        target_object_label = "can"
+    elif int(target_object_id) == 2:
+        target_object_label = "bottle"
+    elif int(target_object_id) == 3:
+        target_object_label = "deodorant"
+
     # Initialize the new task in tasks.yaml
     new_task = {
-        'status': 'running',
+        'status': 'created',
         'object_label': target_object_label,
         'result': None,
         'repeats': '0/20',
         'percentage_complete': 0,
         'events': [
             {
-                'action': 'started_search',
+                'action': 'task_created',
                 'timestamp': datetime.utcnow().isoformat() + 'Z',
-                'details': 'Started looking for the object.',
+                'details': 'Task created for locating the object.',
                 'attempt': 1
             }
         ]
@@ -232,16 +233,88 @@ async def locate_and_align_object_endpoint(target_object_id: str):
     except Exception as e:
         return JSONResponse(content={'error': f'Failed to create task: {str(e)}'}, status_code=500)
     
-    # Locate and align the target object
-    search_result = locate_and_align_object(task_id, target_object_label, config, constants)
-    if not search_result['found']:
-        return JSONResponse(content={'found': False, 'task_id': task_id})
+    return JSONResponse(content={'status': 'task_created', 'task_id': task_id, 'target_object_label': target_object_label})
 
-    # Locate and align the starting point
-    starting_point_label = constants['starting_point_label']
-    locate_and_align_object(task_id, starting_point_label, config, constants)
+@app.post('/car/start_task', tags=['Main Operation'])
+async def start_task_endpoint(task_id: str):
+    """
+    Endpoint to start the task for locating and aligning the target object.
+    """
+    try:
+        # Load existing tasks
+        with open('tasks.yaml', 'r') as file:
+            tasks = yaml.safe_load(file) or {'tasks': {}}
+        
+        if task_id not in tasks['tasks']:
+            return JSONResponse(content={'error': 'Task ID not found'}, status_code=404)
+
+        # Retrieve the task information
+        task = tasks['tasks'][task_id]
+        if task['status'] != 'created':
+            return JSONResponse(content={'error': 'Task is already started or completed'}, status_code=400)
+
+        # Update task status to 'running'
+        task['status'] = 'running'
+        task['events'].append({
+            'action': 'task_started',
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'details': 'Task started for locating the object.',
+            'attempt': 1
+        })
+
+        # Save updated tasks
+        with open('tasks.yaml', 'w') as file:
+            yaml.safe_dump(tasks, file)
+
+        # Load constants and config
+        config, constants = load_config()
+
+        # Locate and align the target object
+        search_result = locate_and_align_object(task_id, task['object_label'], config, constants)
+        if not search_result['found']:
+            task['status'] = 'failed'
+            task['events'].append({
+                'action': 'task_failed',
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'details': 'Failed to locate the target object.',
+            })
+
+            # Save the task with the failure status
+            with open('tasks.yaml', 'w') as file:
+                yaml.safe_dump(tasks, file)
+
+            return JSONResponse(content={'found': False, 'task_id': task_id, 'status': 'failed'})
+
+        # Locate and align the starting point
+        starting_point_label = constants['starting_point_label']
+        alignment_result = locate_and_align_object(task_id, starting_point_label, config, constants)
+
+        if alignment_result['success']:
+            # If successful, update the task status to 'success'
+            task['status'] = 'success'
+            task['events'].append({
+                'action': 'task_completed',
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'details': 'Task completed successfully.',
+            })
+        else:
+            # If not successful, update the task status to 'failed'
+            task['status'] = 'failed'
+            task['events'].append({
+                'action': 'task_failed',
+                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'details': 'Failed to align with the starting point.',
+            })
+
+        # Save updated tasks with the final status
+        with open('tasks.yaml', 'w') as file:
+            yaml.safe_dump(tasks, file)
+        
+        return JSONResponse(content={'status': task['status'], 'task_id': task_id, 'target_object_label': task['object_label']})
     
-    return JSONResponse(content={'status': 'started', 'task_id': task_id, 'target_object_label': target_object_label})
+    except Exception as e:
+        return JSONResponse(content={'error': f'Failed to start task: {str(e)}'}, status_code=500)
+
 
 # ================================
 # Main Execution
