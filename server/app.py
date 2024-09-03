@@ -181,7 +181,7 @@ def save_object(name: str):
         raise HTTPException(status_code=500, detail=str(e))
     return PlainTextResponse(content=f'{name} object saved successfully', status_code=200)
 
-@app.post('/car/create_task', tags=['Main Operation'])
+@app.get('/car/create_task', tags=['Main Operation'])
 async def create_task_endpoint(target_object_id: str):
     """
     Endpoint to create a task for locating and aligning the target object.
@@ -235,7 +235,7 @@ async def create_task_endpoint(target_object_id: str):
     
     return JSONResponse(content={'status': 'task_created', 'task_id': task_id, 'target_object_label': target_object_label})
 
-@app.post('/car/start_task', tags=['Main Operation'])
+@app.get('/car/start_task', tags=['Main Operation'])
 async def start_task_endpoint(task_id: str):
     """
     Endpoint to start the task for locating and aligning the target object.
@@ -322,4 +322,9 @@ async def start_task_endpoint(task_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    uvicorn.run(
+        "app:app",  # Replace "main" with the name of your script if it's different
+        host="127.0.0.1",
+        port=8080,
+        workers=4,  # Number of worker processes
+    )
