@@ -88,7 +88,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
                 break
         return {'found': False}
 
-    def calculate_delay(base_delay, line_length, min_distance):
+    def calculate_delay(base_delay, line_length):
         if line_length == 0:
             return base_delay
         distance_factor = max(0, min(1, (line_length - min_distance) / line_length))
