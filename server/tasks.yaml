@@ -339,3 +339,266 @@ tasks:
     repeats: 0/20
     result: Object successfully picked up
     status: ''
+  0ba98cc1-432f-4b91-839c-a6accc84f03a:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:03:10.845062Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:03:10.985186Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:03:18.798046Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:03:32.309262Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:03:40.990817Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:03:54.387798Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  a30809fa-a490-4f83-89d5-2482808692bd:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:05:20.373515Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:05:20.524224Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:05:26.090877Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:05:43.025578Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:05:48.367893Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:06:01.944639Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  d2c85425-4feb-4579-8ddf-02294eff09c7:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:06:40.006161Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:06:40.151800Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:06:47.342331Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:07:00.635379Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:07:09.093527Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:07:25.639378Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  af8e3360-9358-4740-868e-3e3092629a08:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:08:05.413075Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:08:05.627357Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:08:21.005707Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:08:39.257716Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:08:44.798122Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:09:07.059726Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  26f602ee-bcc7-4676-8dfe-54aa6c9ff0fe:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:10:06.068891Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:10:06.233006Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:10:35.565205Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:10:50.316767Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:10:55.793400Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:11:14.466858Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  703ebbbb-e3ba-4401-843a-433f6e51a57e:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:13:35.377074Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:13:35.712146Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:14:00.569915Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:14:19.550357Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:14:25.501914Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:14:44.319323Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  594250e0-4cca-4c01-8f72-acab24a17f92:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:15:55.164655Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:15:55.352684Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:16:09.731205Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:16:28.268623Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:16:33.569624Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:16:52.220212Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
+  be6b5c52-ea06-4793-a013-c6414d2ddb24:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:27:36.556737Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:27:36.773228Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: running
+  0032ddad-8503-442f-90aa-ef393ba97324:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-03T14:29:47.162714Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-03T14:29:47.430710Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:30:25.293983Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:30:47.083549Z'
+    - action: running
+      attempt: '0'
+      details: Status updated
+      timestamp: '2024-09-03T14:30:52.610027Z'
+    - action: ''
+      attempt: '0'
+      details: Object successfully picked up
+      timestamp: '2024-09-03T14:31:15.572142Z'
+    object_label: Start
+    percentage_complete: 100
+    repeats: 0/20
+    result: Object successfully picked up
+    status: ''
