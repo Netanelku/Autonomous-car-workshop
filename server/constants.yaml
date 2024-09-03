@@ -3,6 +3,7 @@
 # New constant variables
 num_of_aligns: 1
 num_of_divisions_for_backward_delay: 2
+false_detection_count : 1
 max_search_attempts: 10
 min_distance: 25
 alignment_threshold: 0.3 # 30% of frame width for alignment

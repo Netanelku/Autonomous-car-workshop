@@ -50,6 +50,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
     detection_confidence = constants['objects_confidence'][object_label]
     detector = ObjectDetector()
     count = 0
+    false_detection_count = constants['false_detection_count']
     num_of_aligns = constants['num_of_aligns']
     num_of_divisions_for_backward_delay = constants['num_of_divisions_for_backward_delay']
     max_search_attempts = constants['max_search_attempts']
@@ -62,31 +63,66 @@ def locate_and_align_object(task_id, object_label, config, constants):
     extra_turn_left_delay = constants['extra_turn_left_delay'][object_label]
     search_left_delay = constants['search_left_delay']
     half_circle_delay = constants['180_degree_turn_delay']
-    starting_point_label = constants['starting_point_label']
-
+    print("Getting constants:")
     def move_to_search_object():
         response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={search_left_delay}')
         if response.status_code != 200:
             print("Failed to move car left for searching:", response.status_code)
 
     def search_for_object():
-        nonlocal count
+        nonlocal count, false_detection_count
+        backward_delay = 0
+        initial_false_detection_count = constants['false_detection_count']
+
+        print("A")
         while count < max_search_attempts:
+            print("B")
             count += 1
             try:
                 cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
+                print("C")  
                 results = detector.detect(cropped_img, object_label)
+                print("D")
                 if results:
+                    print("E")
+                    move_to_next_iteration = False  # Flag to control the outer loop continuation
                     for result in results:
                         label_result, confidence, x1, y1, x2, y2, line_length = result
-                        if confidence > detection_confidence and label_result == object_label:
-                            centroid_x = (x1 + x2) // 2
-                            return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
+                        if confidence > detection_confidence:
+                            # Move towards incorrect object if false_detection_count > 0
+                            if false_detection_count > 0:
+                                false_detection_count -= 1
+                                print(f"False detection count decreased to {false_detection_count}. Moving forward towards detected {label_result}.")
+                                backward_delay += move_towards_object(line_length)
+                                move_to_next_iteration = True  # Set flag to continue outer loop
+                                break  # Exit the for loop and continue the while loop
+
+                            # Move backward to starting point if false_detection_count is 0 and label_result is incorrect
+                            if label_result != object_label and false_detection_count == 0:
+                                print(f"False detection count is 0. Moving backward {initial_false_detection_count} times to return to starting point.")
+                                for _ in range(initial_false_detection_count):
+                                    move_backward_with_delay(backward_delay)
+                                backward_delay = 0  # Reset backward_delay    
+                                false_detection_count = initial_false_detection_count  # Reset false_detection_count
+                                move_to_next_iteration = True  # Set flag to continue outer loop after moving back
+                                break  # Exit the for loop and continue the while loop
+
+                            # If the correct object is found
+                            if label_result == object_label and false_detection_count == 0:
+                                centroid_x = (x1 + x2) // 2
+                                print(f"Object found at attempt {count} with centroid_x: {centroid_x}, line_length: {line_length}")
+                                return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
+                    
+                    if move_to_next_iteration:
+                        continue  # Continue to the next iteration of the while loop
+
                 move_to_search_object()
             except requests.exceptions.RequestException as e:
                 print("Error:", e)
                 break
-        return {'found': False}
+            print(f"Object not found at attempt {count}.")
+            return {'found': False}
+
 
     def calculate_delay(base_delay, line_length):
         if line_length == 0:
@@ -117,6 +153,8 @@ def locate_and_align_object(task_id, object_label, config, constants):
             print(f"Moving towards item - Failed to move car forward: {move_response.status_code}, Attempted delay: {adjusted_delay}")
         else:
             print(f"Moving towards item - Moved forward with delay: {adjusted_delay}")
+        
+        return adjusted_delay    
 
     def search_after_movement():
         for i in range(num_of_aligns):
@@ -133,6 +171,11 @@ def locate_and_align_object(task_id, object_label, config, constants):
         response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={min_distance_forward_delay}')
         if response.status_code != 200:
             print(f"Failed to move car backward: {response.status_code}, Attempted delay: {min_distance_forward_delay}")
+            
+    def move_backward_with_delay(backward_delay):
+        response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay}')
+        if response.status_code != 200:
+            print(f"Failed to move car backward: {response.status_code}, Attempted delay: {backward_delay}")        
 
     def prepare_for_pick_up(backward_delay):        
             move_response = requests.get(f'http://{car_address}/manualDriving?dir=left&delay={half_circle_delay + extra_turn_left_delay}')                        
@@ -147,7 +190,9 @@ def locate_and_align_object(task_id, object_label, config, constants):
                 time.sleep(1)
     
     try:
+        print("Starting try object detection")
         search_result = search_for_object()
+        print("Search result:")
         if not search_result['found']:
             return {'found': False}
 
@@ -155,6 +200,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
 
         if search_result['found']:
             while True:
+                print("Aligning with object")
                 align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['line_length'])
                 if align_result['aligned']:
                     move_towards_object(search_result['line_length'])

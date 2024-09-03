@@ -269,6 +269,7 @@ async def start_task_endpoint(task_id: str):
         # Load constants and config
         config, constants = load_config()
 
+        print(f"Starting task for locating the object: {task['object_label']}")
         # Locate and align the target object
         search_result = locate_and_align_object(task_id, task['object_label'], config, constants)
         if not search_result['found']:
