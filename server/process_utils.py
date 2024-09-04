@@ -116,10 +116,11 @@ def locate_and_align_object(task_id, object_label, config, constants):
                                 break  # Exit the for loop and continue the while loop
 
                             # If the correct object is found
-                            if label_result == object_label and closeup_for_test == 0:
-                                centroid_x = (x1 + x2) // 2
-                                print(f"Object found at attempt {count} with centroid_x: {centroid_x}, line_length: {line_length}")
-                                return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
+                            if label_result == object_label:
+                                if object_label == "Start" or closeup_for_test == 0:
+                                    centroid_x = (x1 + x2) // 2
+                                    print(f"Object found at attempt {count} with centroid_x: {centroid_x}, line_length: {line_length}")
+                                    return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
                     
                     if move_to_next_iteration:
                         continue  # Continue to the next iteration of the while loop
