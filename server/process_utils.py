@@ -49,15 +49,17 @@ def locate_and_align_object(task_id, object_label, config, constants):
     car_address = config['car_address']
     detection_confidence = constants['objects_confidence'][object_label]
     detector = ObjectDetector()
-    count = 0
-    false_detection_count = constants['false_detection_count']
+    closeup_for_test = constants['closeup_for_test']
+    max_closeups_per_object = constants['max_closeups_per_object']
     num_of_aligns = constants['num_of_aligns']
     num_of_divisions_for_backward_delay = constants['num_of_divisions_for_backward_delay']
-    max_search_attempts = constants['max_search_attempts']
+    num_of_divisions_for_forward_delay = constants['num_of_divisions_for_forward_delay']
+    max_search_attempts = config['retry_attempts']
     min_distance = constants['min_distance']
     alignment_threshold = constants['alignment_threshold']
     min_distance_forward_delay = constants['min_distance_forward_delay']
     move_forward_delay = constants['move_forward_delay']
+    forward_delay_after_pickup = constants['forward_delay_after_pickup']
     align_left_right_delay = constants['align_left_right_delay']
     align_right_before_forward_delay = constants['align_right_before_forward_delay']
     extra_turn_left_delay = constants['extra_turn_left_delay'][object_label]
@@ -70,14 +72,17 @@ def locate_and_align_object(task_id, object_label, config, constants):
             print("Failed to move car left for searching:", response.status_code)
 
     def search_for_object():
-        nonlocal count, false_detection_count
+        nonlocal closeup_for_test, max_closeups_per_object
+        count = 0
         backward_delay = 0
-        initial_false_detection_count = constants['false_detection_count']
-
+        initial_closeup_for_test = closeup_for_test
+        if object_label == "Start":
+            closeups_counter = max_closeups_per_object
+        else:
+            closeups_counter = 0
         print("A")
         while count < max_search_attempts:
             print("B")
-            count += 1
             try:
                 cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
                 print("C")  
@@ -89,26 +94,29 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     for result in results:
                         label_result, confidence, x1, y1, x2, y2, line_length = result
                         if confidence > detection_confidence:
-                            # Move towards incorrect object if false_detection_count > 0
-                            if false_detection_count > 0:
-                                false_detection_count -= 1
-                                print(f"False detection count decreased to {false_detection_count}. Moving forward towards detected {label_result}.")
+                            # Move towards incorrect object if closeup_for_test > 0
+                            if closeup_for_test > 0 and closeups_counter < max_closeups_per_object:
+                                print(f"Before moving towards - closeups counter = {closeups_counter}.")
+                                closeup_for_test -= 1
+                                print(f"False detection count decreased to {closeup_for_test}. Moving forward towards detected {label_result}.")
                                 backward_delay += move_towards_object(line_length)
                                 move_to_next_iteration = True  # Set flag to continue outer loop
                                 break  # Exit the for loop and continue the while loop
 
                             # Move backward to starting point if false_detection_count is 0 and label_result is incorrect
-                            if label_result != object_label and false_detection_count == 0:
-                                print(f"False detection count is 0. Moving backward {initial_false_detection_count} times to return to starting point.")
-                                for _ in range(initial_false_detection_count):
+                            if label_result != object_label and closeup_for_test == 0:
+                                print(f"False detection count is 0. Moving backward {initial_closeup_for_test} times to return to starting point.")
+                                for _ in range(initial_closeup_for_test):
                                     move_backward_with_delay(backward_delay)
+                                closeups_counter += 1  
+                                print(f"closeups counter = {closeups_counter}.")  
                                 backward_delay = 0  # Reset backward_delay    
-                                false_detection_count = initial_false_detection_count  # Reset false_detection_count
+                                closeup_for_test = initial_closeup_for_test  # Reset false_detection_count
                                 move_to_next_iteration = True  # Set flag to continue outer loop after moving back
                                 break  # Exit the for loop and continue the while loop
 
                             # If the correct object is found
-                            if label_result == object_label and false_detection_count == 0:
+                            if label_result == object_label and closeup_for_test == 0:
                                 centroid_x = (x1 + x2) // 2
                                 print(f"Object found at attempt {count} with centroid_x: {centroid_x}, line_length: {line_length}")
                                 return {'found': True, 'centroid_x': centroid_x, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
@@ -117,8 +125,16 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         continue  # Continue to the next iteration of the while loop
                 elif backward_delay > 0:
                     move_backward_with_delay(backward_delay)
-                    time.sleep(1)                                   
+                    backward_delay = 0  # Reset backward_delay
+                    time.sleep(1)        
+                print(f"Object not found at attempt {count}. Moving to the left for the next attempt.")                               
                 move_to_search_object()
+                count += 1
+                print(f"Object not found at attempt {count}. closeups counter = {closeups_counter}.")           
+                if object_label == "Start":
+                    closeups_counter = max_closeups_per_object
+                else:
+                    closeups_counter = 0
             except requests.exceptions.RequestException as e:
                 print("Error:", e)
                 print(f"Object not found at attempt {count}.")
@@ -157,6 +173,17 @@ def locate_and_align_object(task_id, object_label, config, constants):
         
         return adjusted_delay    
 
+    def move_forward_after_pickup():
+            divided_forward_delay = int(forward_delay_after_pickup/num_of_divisions_for_forward_delay)   
+            for i in range(num_of_divisions_for_forward_delay):         
+                move_response = requests.get(f'http://{car_address}/manualDriving?dir=forward&delay={divided_forward_delay}')
+                if move_response.status_code != 200:
+                    print("Moving forward after pickup item - Failed to move car forward:", move_response.status_code)  
+                else:     
+                    print("Moving forward after pickup item - Moved backward with delay:", divided_forward_delay) 
+                time.sleep(1)   
+            
+            
     def search_after_movement():
         for i in range(num_of_aligns):
             cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'search_after_move-{i}')
@@ -219,6 +246,8 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         if object_label != "Start":
                             # Arrived at the object and picked it up successfully
                             update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                            time.sleep(1)
+                            move_forward_after_pickup()
                         else:
                             # Arrived at the return point and successfully dropped the object at its place
                             update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
@@ -233,6 +262,8 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         if object_label != "Start":
                             # Arrived at the object and picked it up successfully
                             update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                            time.sleep(1)
+                            move_forward_after_pickup()
                         else:
                             # Arrived at the return point and successfully dropped the object at its place
                             update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")

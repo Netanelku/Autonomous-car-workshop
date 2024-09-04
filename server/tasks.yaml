@@ -1138,3 +1138,129 @@ tasks:
     repeats: 0/20
     result: null
     status: finish1
+  d8346532-116c-4489-9982-5cafa2fc78a8:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T17:41:28.777818Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T17:41:30.306782Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-04T17:44:09.501203Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  9b418bf6-8618-49aa-a2e8-8e692d703796:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T17:50:14.673756Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T17:50:16.795445Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-04T17:53:14.603068Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  729a204d-759c-45d8-8c52-1c52e9d09cc0:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T18:01:44.396268Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T18:01:45.531687Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-04T18:04:41.275320Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  91019ef8-d2e9-4c6b-9225-10849385e7d5:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T18:05:50.012556Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T18:05:50.916325Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-04T18:07:47.904311Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  59cf57c9-712e-43f4-a385-3e1df401fdb9:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T18:20:04.449472Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T18:20:06.612054Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-04T18:20:09.727492Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  2d13e8d9-62ce-4388-a7bd-e6372d67813c:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T18:27:31.252757Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T18:27:33.150233Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-04T18:29:38.560259Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  69d3a2b7-f686-45a3-89c5-38f7f98db740:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-04T18:30:38.165644Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-04T18:30:39.438080Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-04T18:33:11.546436Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
