@@ -19,7 +19,7 @@ def rotate_image(image, angle=90):
     rotated = cv2.warpAffine(image, M, (new_w, new_h), borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255))
     return rotated
 
-def capture_frame(frame_type,frame_name=""):
+def capture_frame(frame_type,frame_name="", ledon = True, ledoff = True):
     current_time = datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
     with open('config.yaml', 'r') as file:
@@ -36,10 +36,12 @@ def capture_frame(frame_type,frame_name=""):
         os.makedirs(save_directory)
     #print('Fetching image from car address...')
     try: 
-        requests.get(f'http://{car_address}/ledon')
-        time.sleep(1.5)
+        if ledon:
+            requests.get(f'http://{car_address}/ledon')
+            time.sleep(1.5)
         response = requests.get(f'http://{car_address}/left')
-        requests.get(f'http://{car_address}/ledoff')
+        if ledoff:
+            requests.get(f'http://{car_address}/ledoff')
         #print('image fetched')
         if response.status_code == 200:
             image_data = response.content

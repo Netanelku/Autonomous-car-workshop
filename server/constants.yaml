@@ -8,14 +8,14 @@ closeup_for_test : 1
 max_closeups_per_object : 2
 max_search_attempts: 10
 min_distance: 25
-alignment_threshold: 0.3 # 30% of frame width for alignment
-min_distance_forward_delay: 200
+alignment_threshold: 0.1 # 10% of frame width for alignment
+min_distance_forward_delay: 225
 move_forward_delay: 450
-forward_delay_after_pickup: 600 
-align_left_right_delay: 100
+forward_delay_after_pickup: 1200 
+align_left_right_delay: 50
 align_right_before_forward_delay: 20
 search_left_delay: 150
-180_degree_turn_delay: 700
+180_degree_turn_delay: 800
 
 # Object Label for the starting point
 starting_point_label: "Start"

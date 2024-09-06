@@ -84,16 +84,23 @@ def locate_and_align_object(task_id, object_label, config, constants):
         while count < max_search_attempts:
             print("B")
             try:
-                cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'{count}')
+                frame_data = is_object_in_the_frame(frame_name=f'{count}')
+                cropped_img = frame_data['cropped_img']
+                results = frame_data['results']
                 print("C")  
-                results = detector.detect(cropped_img, object_label)
                 print("D")
                 if results:
                     print("E")
                     move_to_next_iteration = False  # Flag to control the outer loop continuation
                     for result in results:
+                        print("In result")
                         label_result, confidence, x1, y1, x2, y2, line_length = result
                         if confidence > detection_confidence:
+                            print("Before aligning")    
+                            if frame_data['found']:  # If the object is found in the frame
+                                print(f"Label result: {label_result}, Confidence: {confidence},centroid_x:{frame_data['centroid_x']},frame_width:{frame_data['frame_width']}  ,line_length: {frame_data['line_length']}]")
+                                align_with_object(frame_data['centroid_x'], frame_data['frame_width'], frame_data['line_length'])
+                            print("After aligning")
                             # Move towards incorrect object if closeup_for_test > 0
                             if closeup_for_test > 0 and closeups_counter < max_closeups_per_object:
                                 print(f"Before moving towards - closeups counter = {closeups_counter}.")
@@ -149,14 +156,17 @@ def locate_and_align_object(task_id, object_label, config, constants):
         return int(base_delay * distance_factor)
 
     def align_with_object(centroid_x, frame_width, line_length):
+        print("Aligning with object")
         frame_center = frame_width // 2
         if abs(centroid_x - frame_center) > frame_width * alignment_threshold:
+            print("Inside Aligning with object")
             adjusted_delay = calculate_delay(align_left_right_delay, line_length)
             direction = 'left' if centroid_x < frame_center else 'right'
             response = requests.get(f'http://{car_address}/manualDriving?dir={direction}&delay={adjusted_delay}')
             if response.status_code != 200:
                 print(f"Failed to move car {direction}: {response.status_code}, Attempted delay: {adjusted_delay}")
                 return {'aligned': False, 'line_length': line_length}
+        print("Successfully aligning with object")    
         return {'aligned': True, 'line_length': line_length}
 
     def move_towards_object(line_length):
@@ -185,16 +195,20 @@ def locate_and_align_object(task_id, object_label, config, constants):
                 time.sleep(1)   
             
             
-    def search_after_movement():
-        for i in range(num_of_aligns):
-            cropped_img = image_utils.capture_frame(frame_type="stream", frame_name=f'search_after_move-{i}')
+    def is_object_in_the_frame(frame_type="", frame_name = ""):
+            if frame_type == "":
+                cropped_img = image_utils.capture_frame(frame_type="stream", frame_name={frame_name})
+            elif frame_type == "First":
+                cropped_img = image_utils.capture_frame(frame_type="stream", frame_name={frame_name}, ledon=True, ledoff=False)    
+            else:
+                cropped_img = image_utils.capture_frame(frame_type="stream", frame_name={frame_name}, ledon=False, ledoff=True)    
             results = detector.detect(cropped_img, object_label)
             if results:
                 for result in results:
                     label_result, confidence, x1, y1, x2, y2, line_length = result
                     if confidence > detection_confidence and label_result == object_label:
-                        return {'found': True, 'centroid_x': (x1 + x2) // 2, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
-        return {'found': False}
+                        return {'found': True, 'cropped_img': cropped_img, 'results': results, 'centroid_x': (x1 + x2) // 2, 'frame_width': cropped_img.shape[1], 'line_length': line_length}
+            return {'found': False, 'cropped_img': cropped_img, 'results': results}
 
     def move_backward():
         response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={min_distance_forward_delay}')
@@ -238,9 +252,14 @@ def locate_and_align_object(task_id, object_label, config, constants):
             while True:
                 print("Aligning with object")
                 align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['line_length'])
+                new_search_result = is_object_in_the_frame(frame_type="First")
+                print("After one align and take a picture")
+                if new_search_result['found']:
+                    align_result = align_with_object(new_search_result['centroid_x'], new_search_result['frame_width'], new_search_result['line_length'])
+                print("After two aligns")
                 if align_result['aligned']:
-                    move_towards_object(search_result['line_length'])
-                    new_search_result = search_after_movement()
+                    new_search_result = is_object_in_the_frame(frame_type="Second")
+                    print("After two aligns and two take pictures")              
                     if not new_search_result['found']:
                         move_backward()
                         prepare_for_pick_up(min_distance_forward_delay * 3)
@@ -252,13 +271,12 @@ def locate_and_align_object(task_id, object_label, config, constants):
                         else:
                             # Arrived at the return point and successfully dropped the object at its place
                             update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
-                        break
-                    search_result = new_search_result
+                        break                    
                     
-                    frame_center = search_result['frame_width'] // 2
-                    if (abs(search_result['centroid_x'] - frame_center) <= search_result['frame_width'] * alignment_threshold
-                        and search_result['line_length'] <= min_distance):
-                        move_towards_object(search_result['line_length'])
+                    frame_center = new_search_result['frame_width'] // 2
+                    if (abs(new_search_result['centroid_x'] - frame_center) <= new_search_result['frame_width'] * alignment_threshold
+                        and new_search_result['line_length'] <= min_distance):
+                        #move_towards_object(search_result['line_length'])
                         prepare_for_pick_up(min_distance_forward_delay * 2)
                         if object_label != "Start":
                             # Arrived at the object and picked it up successfully
@@ -269,6 +287,8 @@ def locate_and_align_object(task_id, object_label, config, constants):
                             # Arrived at the return point and successfully dropped the object at its place
                             update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
                         break
+                    move_towards_object(new_search_result['line_length']) 
+                    search_result = new_search_result
                 else:
                     print("Alignment failed. Retrying.")
             return {**search_result, **align_result, 'found':True}
