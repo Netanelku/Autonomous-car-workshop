@@ -2137,3 +2137,93 @@ tasks:
     repeats: 0/20
     result: null
     status: finish1
+  1e67f481-30fb-40e4-8f51-44d6e83ee1a2:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T13:21:25.685348Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T13:21:30.526525Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-07T13:25:21.523498Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  ba66ca59-0607-4f8a-828a-2bf07e1a4c14:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T13:56:51.155915Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T13:56:57.523758Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-07T14:00:45.119754Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  5d4c5655-20ba-4060-ba48-d6a2ea8ad108:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T14:07:31.999964Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T14:07:36.145921Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-07T14:07:37.468900Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  d45e3651-da7d-4d2d-99d2-0206d3785d08:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T14:08:11.014695Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T14:08:14.477099Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-07T14:08:16.261167Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  0c21df90-1d68-4b33-97c3-06cc55fe354b:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T14:10:24.578914Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T14:10:26.899129Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-07T14:13:23.989487Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1

@@ -242,59 +242,76 @@ def locate_and_align_object(task_id, object_label, config, constants):
         if not search_result['found']:
             print("Object not found")
             return {'found': False}
+        
         if object_label != "Start":
             # Detected the target object and started moving towards it to retrieve
             update_task_status(task_id, 'running', 25, object_label, "Moving towards the target object for retrieval")
         else:
             # Detected the return point and started moving towards it with the object to bring it to its place
             update_task_status(task_id, 'running', 25, object_label, "Moving towards the return point with the object")
+            
         print("Object found")
         if search_result['found']:
-            while True:
-                print("Aligning with object")
-                align_result = align_with_object(search_result['centroid_x'], search_result['frame_width'], search_result['line_length'])
-                new_search_result = is_object_in_the_frame(frame_type="First")
-                print("After one align and take a picture")
-                if new_search_result['found']:
-                    align_result = align_with_object(new_search_result['centroid_x'], new_search_result['frame_width'], new_search_result['line_length'])
-                print("After two aligns")
-                if align_result['aligned']:
-                    new_search_result = is_object_in_the_frame(frame_type="Second")
-                    print("After two aligns and two take pictures")              
-                    if not new_search_result['found']:
-                        move_backward()
-                        prepare_for_pick_up(backward_delay_before_pickup * 3)
-                        if object_label != "Start":
-                            # Arrived at the object and picked it up successfully
-                            update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
-                            time.sleep(1)
-                            move_forward_after_pickup()
-                        else:
-                            # Arrived at the return point and successfully dropped the object at its place
-                            update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
-                        break                    
-                    
-                    frame_center = new_search_result['frame_width'] // 2
-                    if (abs(new_search_result['centroid_x'] - frame_center) <= new_search_result['frame_width'] * alignment_threshold
-                        and new_search_result['line_length'] <= min_distance):
-                        #move_towards_object(search_result['line_length'])
-                        prepare_for_pick_up(backward_delay_before_pickup * 2)
-                        if object_label != "Start":
-                            # Arrived at the object and picked it up successfully
-                            update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
-                            time.sleep(1)
-                            move_forward_after_pickup()
-                        else:
-                            # Arrived at the return point and successfully dropped the object at its place
-                            update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
-                        break
-                    move_towards_object(new_search_result['line_length']) 
-                    search_result = new_search_result
-                else:
-                    print("Alignment failed. Retrying.")
-            return {**search_result, **align_result, 'found':True}
+            last_align_result = search_result  # Initialize with the initial search result
+
+        while True:
+            print("Aligning with object")
+            align_result = align_with_object(last_align_result['centroid_x'], last_align_result['frame_width'], last_align_result['line_length'])
+
+            # First alignment and frame check
+            first_align_result = is_object_in_the_frame(frame_type="First")
+            print("After one align and take a picture")
+            if first_align_result['found']:
+                align_result = align_with_object(first_align_result['centroid_x'], first_align_result['frame_width'], first_align_result['line_length'])
+            
+            # Update last_align_result with the first alignment result if found
+            last_align_result = first_align_result if first_align_result['found'] else last_align_result
+
+            print("After two aligns")
+            if align_result['aligned']:
+                # Second alignment and frame check
+                second_align_result = is_object_in_the_frame(frame_type="Second")
+                print("After two aligns and two take pictures")
+
+                if not first_align_result['found'] and not second_align_result['found']:
+                    move_backward()
+                    prepare_for_pick_up(backward_delay_before_pickup * 3)
+                    if object_label != "Start":
+                        # Arrived at the object and picked it up successfully
+                        update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                        time.sleep(1)
+                        move_forward_after_pickup()
+                    else:
+                        # Arrived at the return point and successfully dropped the object at its place
+                        update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
+                    break
+
+                # Update last_align_result with the second alignment result if found
+                last_align_result = second_align_result if second_align_result['found'] else last_align_result
+
+                frame_center = last_align_result['frame_width'] // 2
+                if (abs(last_align_result['centroid_x'] - frame_center) <= last_align_result['frame_width'] * alignment_threshold
+                    and last_align_result['line_length'] <= min_distance):
+                    # Move towards the object and pick it up
+                    prepare_for_pick_up(backward_delay_before_pickup * 2)
+                    if object_label != "Start":
+                        # Arrived at the object and picked it up successfully
+                        update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
+                        time.sleep(1)
+                        move_forward_after_pickup()
+                    else:
+                        # Arrived at the return point and successfully dropped the object at its place
+                        update_task_status(task_id, 'running', 25, object_label, "Object placed successfully at return point")
+                    break
+
+                # Move towards the object using the updated align result
+                move_towards_object(last_align_result['line_length'])
+            else:
+                print("Alignment failed. Retrying.")
+
+        return {**last_align_result, **align_result, 'found': True}
     except:
-        return {**search_result, **align_result, 'found':False}
+        return {**last_align_result, **align_result, 'found': False}
 
     finally:
         requests.get(f'http://{car_address}/ledoff')

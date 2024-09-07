@@ -3,4 +3,4 @@ detection_confidence: 0.3
 image_paths:
   objects_path: images/objects
   stream_path: images/stream
-retry_attempts: 10
+retry_attempts: 15
