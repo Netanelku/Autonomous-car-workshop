@@ -46,12 +46,19 @@ class ObjectDetector:
         if return_value:
             label, confidence, x1, y1, x2, y2, line_length = return_value
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(image, f'{label} {confidence:.2f}', (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Display the confidence at the top center of the frame
+            confidence_text = f'{label} {confidence:.2f}'
+            cv2.putText(image, confidence_text, (center_frame_x - (cv2.getTextSize(confidence_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0][0] // 2), 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             center_object_x = (x1 + x2) // 2
             center_object_y = y2
             cv2.circle(image, (center_object_x, center_object_y), 5, (0, 0, 255), -1)
             cv2.line(image, (center_object_x, center_object_y), (center_object_x, height), (0, 255, 255), 2)
+            # Display the line length at the middle bottom of the frame
+            line_length_text = f'Line Length: {line_length:.2f}'
+            cv2.putText(image, line_length_text, (center_frame_x - (cv2.getTextSize(line_length_text, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0][0] // 2), height - 20), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         # Create subfolder for each object label
         results_dir = os.path.join('images/results', object_label)

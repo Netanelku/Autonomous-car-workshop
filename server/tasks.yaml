@@ -1687,3 +1687,453 @@ tasks:
     repeats: 0/20
     result: Moving towards the return point with the object
     status: running
+  a7fb0203-aaf0-49d3-a8d2-1258f64456a6:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:04:42.882121Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:04:43.860391Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:06:48.007703Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  f0f799f9-03cb-48ee-bb63-44ac13333492:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:07:54.554056Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:07:55.171995Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:09:53.451962Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  d7928ee9-7828-456e-b524-2eda9502126e:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:10:34.001085Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:10:34.610914Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:11:55.531495Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  541e28cf-4974-4740-87ba-c878049be8c6:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:29:15.275368Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:29:16.258102Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:30:24.147869Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  299ef035-a40a-4762-a2a8-0d94ba222ff8:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:31:04.028866Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:31:04.613919Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:32:22.730272Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  6dd895ab-36b3-4371-b33a-71d345d10af9:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:36:16.832711Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:36:17.706637Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:37:47.337127Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  efef2401-e46c-468a-8b3d-1aaec6edf14c:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:53:00.083973Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:53:00.724557Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:54:55.494622Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  248284d0-5b2f-4057-8323-0784de34f18a:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T14:57:06.040960Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T14:57:06.741112Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T14:58:47.788314Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  b9dd5e81-9f14-4944-9645-e5962b8e0dfd:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:03:01.384244Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:03:02.068924Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:04:23.517255Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  051b919c-0644-48a3-9127-98445bd220d3:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:05:07.693905Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:05:08.601972Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:06:08.986189Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  e0c36040-e823-4a2a-93a4-7c150f796918:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:10:52.545224Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:10:53.662125Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-06T15:12:17.137675Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  10f1d7e4-ceec-49c4-95fd-f2a5deeb144d:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:16:38.328632Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:16:39.210937Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-06T15:18:36.041957Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  438b8923-9858-404f-b511-74dfccd4d27b:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:24:08.759307Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:24:09.524997Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:25:32.200761Z'
+    object_label: deodorant
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  74ca0ba6-3a03-4a18-9ec5-011867a26fb8:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:27:08.784260Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:27:10.247288Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:28:55.522759Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  c436f060-8a4b-49a1-8a2a-ce7182bde77e:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:27:09.322217Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:28:55.770082Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:30:15.031086Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  a7694332-e2f9-4f23-8c54-2bc921feb416:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:31:48.897949Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:31:49.768905Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-06T15:33:16.542528Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  7b9836d9-26b9-478c-81ab-4d083ae96683:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:35:19.705400Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:35:20.514233Z'
+    - action: task_failed
+      details: Failed to locate the target object.
+      timestamp: '2024-09-06T15:36:11.897884Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  99ec128f-242e-4cc6-bf5c-8d4bb0779f83:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:41:45.335145Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:41:46.319628Z'
+    - action: task_failed
+      details: Failed to locate the target object.
+      timestamp: '2024-09-06T15:41:56.779322Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  39a20f53-6e4a-427b-84fb-4fc0ab57c0e8:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:42:22.757090Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:42:23.511538Z'
+    - action: task_failed
+      details: Failed to locate the target object.
+      timestamp: '2024-09-06T15:42:31.187254Z'
+    object_label: can
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  1b88cf3e-ce5b-4a5c-9ffb-9ae25df55502:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:44:20.454829Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:44:21.159498Z'
+    - action: task_failed
+      details: Failed to locate the target object.
+      timestamp: '2024-09-06T15:44:32.608151Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  549a21ad-66ca-426a-ae31-ce80ec17dcc8:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:44:46.312424Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:44:47.046124Z'
+    - action: task_failed
+      details: Failed to locate the target object.
+      timestamp: '2024-09-06T15:44:55.130316Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  77c8f91c-0bfb-405f-90bf-525c77968f69:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:45:53.356621Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:45:54.611685Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-06T15:46:45.256337Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  a3fdf8de-bdc8-47d5-9b57-495de0a3b304:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-06T15:50:05.393036Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-06T15:50:06.406053Z'
+    - action: task_failed
+      details: Failed to align with the starting point.
+      timestamp: '2024-09-07T07:54:33.147465Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish2
+  98ee0217-a19d-42e7-b99f-a2423188904b:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T08:41:58.609038Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T08:42:00.231998Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-07T08:43:12.040392Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1
+  811c8013-8141-4f8b-b798-36e78e77c8cc:
+    events:
+    - action: task_created
+      attempt: 1
+      details: Task created for locating the object.
+      timestamp: '2024-09-07T08:48:19.664778Z'
+    - action: task_started
+      attempt: 1
+      details: Task started for locating the object.
+      timestamp: '2024-09-07T08:48:20.768913Z'
+    - action: task_completed
+      details: Task completed successfully.
+      timestamp: '2024-09-07T08:49:43.668343Z'
+    object_label: bottle
+    percentage_complete: 0
+    repeats: 0/20
+    result: null
+    status: finish1

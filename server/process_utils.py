@@ -58,6 +58,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
     min_distance = constants['min_distance']
     alignment_threshold = constants['alignment_threshold']
     min_distance_forward_delay = constants['min_distance_forward_delay']
+    backward_delay_before_pickup = constants['backward_delay_before_pickup']
     move_forward_delay = constants['move_forward_delay']
     forward_delay_after_pickup = constants['forward_delay_after_pickup']
     align_left_right_delay = constants['align_left_right_delay']
@@ -211,9 +212,9 @@ def locate_and_align_object(task_id, object_label, config, constants):
             return {'found': False, 'cropped_img': cropped_img, 'results': results}
 
     def move_backward():
-        response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={min_distance_forward_delay}')
+        response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay_before_pickup}')
         if response.status_code != 200:
-            print(f"Failed to move car backward: {response.status_code}, Attempted delay: {min_distance_forward_delay}")
+            print(f"Failed to move car backward: {response.status_code}, Attempted delay: {backward_delay_before_pickup}")
             
     def move_backward_with_delay(backward_delay):
         response = requests.get(f'http://{car_address}/manualDriving?dir=backward&delay={backward_delay}')
@@ -262,7 +263,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     print("After two aligns and two take pictures")              
                     if not new_search_result['found']:
                         move_backward()
-                        prepare_for_pick_up(min_distance_forward_delay * 3)
+                        prepare_for_pick_up(backward_delay_before_pickup * 3)
                         if object_label != "Start":
                             # Arrived at the object and picked it up successfully
                             update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")
@@ -277,7 +278,7 @@ def locate_and_align_object(task_id, object_label, config, constants):
                     if (abs(new_search_result['centroid_x'] - frame_center) <= new_search_result['frame_width'] * alignment_threshold
                         and new_search_result['line_length'] <= min_distance):
                         #move_towards_object(search_result['line_length'])
-                        prepare_for_pick_up(min_distance_forward_delay * 2)
+                        prepare_for_pick_up(backward_delay_before_pickup * 2)
                         if object_label != "Start":
                             # Arrived at the object and picked it up successfully
                             update_task_status(task_id, 'running', 25, object_label, "Object picked up successfully")

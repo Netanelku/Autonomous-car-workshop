@@ -249,6 +249,7 @@ const Launch: React.FC = () => {
     if (status != "") {
       if (liveAudioStatus && window.speechSynthesis) {
         const utterance = new SpeechSynthesisUtterance(`${status}.`);
+        utterance.lang = 'en-US'; // Set language to English (US)
         window.speechSynthesis.speak(utterance);
       }
       if (liveNotifications) {
